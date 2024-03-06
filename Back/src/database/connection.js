@@ -4,6 +4,7 @@ import sql from 'mssql'
     user: 'orfis',
     password: 'zxcv',
     server: 'localhost',
+    //server: '10.0.230.142',
     database: 'InventarioDGCIFS',
     options: {
         encrypt: true,
