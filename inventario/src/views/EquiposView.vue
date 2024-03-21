@@ -33,19 +33,26 @@
                       <!--Contenedores de Carga o Busquedas con CSV o texto-->
                           <!--Componente cargacon csv-->
                           <v-col cols="11">
-                            <v-file-input show-size label="¿Desea cargar archivo con Datos?" 
+                            <br>
+                            <!-- <v-file-input show-size label="¿Desea cargar archivo con Datos?" 
                             @change="cargarArchivo"
                             accept="text/csv"
-                            ></v-file-input>
-                            <v-divider :thickness="2"></v-divider>
+
+                            ></v-file-input> -->
+                            <input class="mt-3" type="file" ref="fileupload" @change="onFileChange"
+                            accept=".csv" label="File input"
+                           
+                            >
+
+                           
                           </v-col>
-                          <v-col cols="12">
+                          <!-- <v-col cols="12">
                             <ul>
                               <li v-for="(item, index) in datosCSV" :key="index">
                                 <p>Marca: {{ item.Marca }} -- Modelo: {{ item.Modelo }} -- Descripción: {{ item.Descripción }} -- No.Inventario: {{ item['No. Inventario Armonizado'] }}</p>
                               </li>
                             </ul>
-                          </v-col>
+                          </v-col> -->
                           <!--Componente busqueda de objeto-->
                           <v-col cols="11">
                             <v-row align="center"
@@ -73,7 +80,7 @@
                                       <v-list-item-content>
                                         <v-list-item-title>{{ item.Area }} -- {{  getEquipoText(item.Equipo) }} -- {{ getMarcaText(item.Marca) }} -- 
                                           {{ item.Modelo}} </v-list-item-title>
-                                        <v-list-item-subtitle>{{ item.Descripcion }} -- {{ item.NumeroInventarioArmonizado }} </v-list-item-subtitle>
+                                        <v-list-item-subtitle>{{ item.Descripcion }} -- {{ item.NumeroInventarioArmonizado }} -- IP: {{ item.IPEquipo }} </v-list-item-subtitle>
                                       </v-list-item-content>
                                     </v-list-item>
                                   </template>
@@ -82,7 +89,7 @@
                                   <ul>
                                     <li v-for="(item, index) in activeItemsProductos" :key="index">
                                       <p>Equipo: {{ getEquipoText(item.Equipo) }} -- Marca: {{ getMarcaText(item.Marca) }} -- Modelo: {{ item.Modelo }} 
-                                        -- Descripcion: {{ item.Descripcion }} -- No.Inventario: {{ item.NumeroInventarioArmonizado }}</p>
+                                        -- Descripcion: {{ item.Descripcion }} -- No.Inventario: {{ item.NumeroInventarioArmonizado }} -- IP: {{ item.IPEquipo }}</p>
                                       <!-- Agrega más elementos aquí según tus necesidades -->
                                     </li>
                                   </ul>
@@ -137,11 +144,8 @@
                           </v-col>
                           <!--Agregar Marca - Dialog-->
                           <v-col cols="12">
-                            
-
                             <v-row align="center"
                             justify="center">
-
                             <v-col cols="10">
                               <v-select class="mrl-15" v-model="selectedItemMarcas" :items="activeItems" 
                             item-value="MarcaId" item-text="MarcaDescripcion" 
@@ -193,8 +197,19 @@
                           </v-col>
                           <!--Area-->
                           <v-col xl="4" lg="4" md="4" sm="auto" xs="auto">
-                            <v-text-field label="Área" single-line 
+                            <!-- <v-text-field label="Área" single-line 
                             hint="Ingrese Área" v-model="areaForm"
+                            ></v-text-field>  -->
+
+                            <v-select class="mrl-15" v-model="areaForm" :items="activeItemsAreas" 
+                            item-value="AreaId" item-text="AreaDescripcion" 
+                            label="Areas" required>
+                          </v-select>
+                          </v-col>
+                          <!--Ip Equipo-->
+                          <v-col xl="4" lg="4" md="4" sm="auto" xs="auto">
+                            <v-text-field label="IP del Equipo" single-line 
+                            hint="Ingrese IP del Equipo" v-model="IPEquipo"
                             ></v-text-field> 
                           </v-col>
                           <!--Persona Asignada-->
@@ -331,15 +346,7 @@
               <v-icon class="mr-3">mdi-microsoft-windows-classic</v-icon>
               Software
             </v-btn>
-          </v-col>
-          <!-- Botones de Guardado
-          <v-col cols="auto">
-            <v-btn color="success" border class="text-none  mb-2" variant="text">
-              <v-icon class="mr-3">mdi mdi-card-search-outline</v-icon>
-              Buscar & Agregar
-            </v-btn>
-          </v-col> -->
-          
+          </v-col>         
         </v-row>
         <br>
       </v-col>
@@ -367,12 +374,16 @@
           <template v-slot:item.Marca="{ item }">
             {{ getMarcaText(item.Marca) }}
           </template>
-          <template v-slot:item.FechaCompra="{ item }">
+
+          <template v-slot:item.Area="{ item }">
+            {{ getAreaText(item.Area) }}
+          </template>
+          <!-- <template v-slot:item.FechaCompra="{ item }">
             {{ formatDate(item.FechaCompra) }}
           </template>
           <template v-slot:item.FechaVencimientoGarantia="{ item }">
             {{ formatDate(item.FechaVencimientoGarantia) }}
-          </template>
+          </template> -->
         </v-data-table>
       </v-col>
 
@@ -387,19 +398,29 @@
             <v-text-field v-model="itemEditado.Modelo" label="Modelo"></v-text-field>
             <v-text-field v-model="itemEditado.Descripcion" label="Descripción"></v-text-field>
             <v-text-field v-model="itemEditado.NombreEquipo" label="Nombre Equipo"></v-text-field>
+            <v-text-field v-model="itemEditado.IPEquipo" label="IP del Equipo"></v-text-field>
             <v-text-field v-model="itemEditado.ClaveProducto" label="No. Serie"></v-text-field>
             <v-text-field v-model="itemEditado.NumeroInventario" label="No. Inventario"></v-text-field>
             <v-text-field v-model="itemEditado.NumeroInventarioArmonizado" label="No. Inventario Armonizado"></v-text-field>
-            <v-text-field v-model="itemEditado.Area" label="Área"></v-text-field>
+            
+            <!-- <v-text-field :value="getAreaText(itemEditado.Area)" label="Área" @input="updateAreaText($event)">
+            </v-text-field> -->
+            
+            <v-select class="mrl-15" v-model="itemEditado.Area" :items="activeItemsAreas" 
+            item-value="AreaId" item-text="AreaDescripcion" 
+            label="Areas" required>
+          </v-select>
+
+            <!-- <v-text-field v-model="itemEditado.Area" label="Área"></v-text-field> -->
             <v-text-field v-model="itemEditado.AsignadoA" label="Asignado a"></v-text-field>
             <v-select v-model="itemEditado.estado" :items="['Activo', 'Inactivo']" label="Estado"></v-select>
             <v-menu
-              ref="menu"
-              v-model="menu"
+              ref="menuForm"
+              v-model="menuForm"
               :close-on-content-click="false"
               transition="scale-transition"
               offset-y
-              min-width="auto"
+              min-width="290px"
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
@@ -408,22 +429,54 @@
                   prepend-icon="mdi-calendar"
                   readonly
                   v-bind="attrs"
+                  locale="es"
                   v-on="on"
                 ></v-text-field>
               </template>
               <v-date-picker
-                v-model="itemEditado.FechaCompra"
-                active-picker.sync="activePicker"
-                :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10)"
+                v-model="formattedFechaCompra"
+                locale="es"
+                ref="pickers"
+                max="2150-01-01"
                 min="1950-01-01"
-                @change="save"
+                @change="save3"
               ></v-date-picker>
             </v-menu>
 
+
+            <v-menu
+              ref="menuForm2"
+              v-model="menuForm2"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="itemEditado.FechaVencimientoGarantia"
+                  label="Fecha de Garantía"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  v-bind="attrs"
+                  locale="es"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="formattedFechaGarantia"
+                locale="es"
+                ref="pickers"
+                max="2150-01-01"
+                min="1950-01-01"
+                @change="save4"
+              ></v-date-picker>
+            </v-menu>
             <!-- <v-date-picker v-model="itemEditado.FechaCompra" label="Fecha de Compra" scrollable></v-date-picker>
             <v-date-picker v-model="itemEditado.FechaVencimientoGarantia" label="Fecha de Garantía" scrollable></v-date-picker>
      -->
             <!-- Agrega más campos de edición aquí -->
+            <h3>FCSI-19</h3> 
           </v-card-text>
           <v-card-actions>
             <v-btn color="blue darken-1" text @click="guardarEdicion">Guardar</v-btn>
@@ -432,19 +485,21 @@
         </v-card>
       </v-dialog>
 
-      <!--Botones de acciones de guardado sobre datos de Tabla-->
-      <v-col cols="12" v-if="!inventario">
+      <!--Botones de acciones de guardado sobre datos de Tabla
+      v-if="inventario && inventario.length > 0"
+      -->
+      <v-col cols="12" >
 
         <v-row align="center" justify="center">
           <v-col cols="auto">
-            <v-btn color="error" text @click="dialog = false" class="">
+            <v-btn color="error" text @click="clenaData()" class="">
               <v-icon class="mr-1">mdi-close</v-icon>
               Limpiar Datos
             </v-btn>
           </v-col>
 
           <v-col cols="auto">
-            <v-btn color="success" text @click="dialog = false" class="">
+            <v-btn color="success" text @click="saveDataOnBd()" class="">
               <v-icon class="mr-3">mdi-content-save-all</v-icon>
               Guardar Inventario
             </v-btn>
@@ -467,7 +522,69 @@
     </v-row>
   </v-container>
 </template>
+<style>
+
+.swal2-title {
+  font-family: Arial, sans-serif; 
+  font-size: 28px; 
+  color: black; 
+}
+
+.swal2-em {
+  font-family: Arial, sans-serif; 
+  font-size: 18px; 
+  color: black; 
+}
+
+/*
+.swal2-html-container p {
+  font-family: Arial, sans-serif; 
+  font-size: 16px; 
+}
+
+ .swal2-button {
+  background-color: #4CAF50; 
+  color: white; 
+}
+
+.swal2-deny-button {
+  background-color: #f44336; 
+  color: white; 
+}
+
+ .btn-success {
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+ 
+} 
+
+.personal1 {
+  background-color: #008000;
+  border-radius: 8px;
+  color:#008000;                                                                                         ;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  padding: 8px 16px;
+  margin-right: 10px;
+} 
+*/
+
+.entendido{
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  color:#FFFFFF; 
+  box-shadow: none;  
+  margin-right: 10px;
+}
+
+</style>
 <script>
+import axios from 'axios';
+import moment from 'moment';
+import Swal from 'vue-sweetalert2';
+
 export default {
   name: "CapEquipos",
 
@@ -483,6 +600,7 @@ export default {
             { text: 'Modelo', value: 'Modelo' , sortable: true,},
             { text: 'Descripción', value: 'Descripcion' , sortable: true,},
             { text: 'Nombre Equipo', value: 'NombreEquipo' , sortable: true,},
+            { text: 'IP de Equipo', value: 'IPEquipo' , sortable: true,},
             { text: 'No. Serie', value: 'ClaveProducto' , sortable: true,},
             { text: 'No. Inventario', value: 'NumeroInventario', sortable: true, width: '200px' },
             { text: 'No. Inv. Armonizado', value: 'NumeroInventarioArmonizado', sortable: true, width: '200px' },
@@ -520,13 +638,17 @@ export default {
 
       //Valores de Formularios
       descripDatos: '',//Descripción 
-      areaForm: '',
+      
+      IPEquipo: '',
       perasigForm: '',
       licitaForm: '',
       noSerie:'',
       noInventario: '',
       noInvArmonizado: '',
       nomEquipo: '',
+      menuForm: false,
+      menuForm2: false,
+      Tipo: 'Equipo',
 
       //Valores de COmbo Box 
        //Valor de Equipos
@@ -538,6 +660,10 @@ export default {
       datosMarcas: [],
       selectedItemMarcas: null,
       activeItems: [], 
+      //Valores de Areas
+      activeItemsAreas: [],
+      areaForm: null, 
+
       //Valor Modelos 
       valModelo: '',
 
@@ -548,9 +674,15 @@ export default {
       dateGarantia: new Date().toISOString().substr(0, 10),
 
 
+        //valore de sweetalert
+        respuesta: false,
 
 
-      //DATOS DE PRUEBA ***********************************
+//Valores de fielinput
+fileinput: "",
+    filename: "",
+
+      //DATOS DE PRUEBA *********************************************************************
 
 
     //List de datos del autocompletar
@@ -624,6 +756,10 @@ export default {
   }),
 
   watch: {
+    'itemEditado.estado': function(newEstado, oldEstado) {
+    // Actualizar itemEditado.Estado según el estado seleccionado
+    this.itemEditado.Estado = newEstado === 'Activo' ? 1 : 0;
+    },
     isUpdating(val) {
       clearTimeout(this.timeout)
 
@@ -644,6 +780,30 @@ export default {
     this.fetchData();
   },
   computed: {
+    formattedFechaCompra: {
+    get() {
+      if (!this.itemEditado.FechaCompra) {
+        return null;
+      }
+      return new Date(this.itemEditado.FechaCompra).toISOString().substr(0, 10);
+    },
+    set(value) {
+      console.log(value);
+      this.itemEditado.FechaCompra = value;
+    },
+    },
+    formattedFechaGarantia: {
+    get() {
+      if (!this.itemEditado.FechaVencimientoGarantia) {
+        return null;
+      }
+      return new Date(this.itemEditado.FechaVencimientoGarantia).toISOString().substr(0, 10);
+    },
+    set(value) {
+      console.log(value);
+      this.itemEditado.FechaVencimientoGarantia = value;
+    },
+    },
     dateCompraFormatted() {
       return this.formatDate(this.dateCompra);
     },
@@ -653,7 +813,6 @@ export default {
   },
   methods: {
     //Metodos Reales - ASYNC
-
     async fetchData() {
       try {
         //Recupera los datos para ser buscados en el autocomplete
@@ -675,7 +834,11 @@ export default {
         const data = await response.json();
         this.activeItems = data;
 
-        //Recupera Modelos 
+        //Recupera Areas 
+        const responseAreas = await fetch('http://localhost:3000/areas');
+        const dataAreas = await responseAreas.json();
+        this.activeItemsAreas = dataAreas;
+
 
 
 
@@ -686,6 +849,8 @@ export default {
         console.error('Error fetching data:', error);
       }
     },
+
+    
 
     filtrarEquipos(texto) {
             // Filtrar los datos basados en el texto ingresado
@@ -719,13 +884,590 @@ export default {
        // console.log(this.activeItemsProductos);
     },
 
+    // //verifica si hay inventario para mostrar los botones de guardado
+    // hasInventory() {
+    //   return this.inventario && this.inventario.length > 0;
+    // },
+
+    //Limpia los datos
+    clenaData(){
+      this. inventario = [];
+      this.descripDatos = '';
+        this.areaForm = '';
+        this.perasigForm = '';
+        this.licitaForm = '';
+        this.dateCompra = '';
+        this.dateGarantia = '';
+        this.selectedItemEquipos = '';
+        this.selectedItemMarcas = '';
+        this.valModelo = '';
+        this.dateCompra = '';
+        this.dateGarantia = '';
+        this.nomEquipo = '';
+        this.noSerie = '';
+        this.noInventario = '';
+        this.noInvArmonizado = '';
+        this.IPEquipo=''; 
+        this.activeItemsProductos = [];
+        this.equiposSeleccionados = [];
+    },
+
+    //Guarda los datos en la base de Datos
+    // saveDataOnBd(){
+    //  //console.log("Guardando datos en Base de Datos");
+
+    //  this.$swal({
+    //    customClass: {
+    //        confirmButton: "entendido",
+    //        denyButton: "entendido"
+    //      },
+    //     buttonsStyling: true,
+    //     title: "¿Está seguro que desea guardar estos datos?",
+    //     html:
+    //         '¡¡Una vez realizado este proceso no se puede revertir!! </em>',
+    //     //  showCancelButton: true,
+    //     focusConfirm: false,
+    //     showDenyButton: true,
+    //     confirmButtonText: "Guardar Inventario",
+    //     confirmButtonColor: '#008000',
+    //     denyButtonText: `Cancelar`,
+    //   }).then((result) => {
+    //     /* Si confirman el guardado */
+    //     if (result.isConfirmed) {
+
+          
+
+    //       //Si se logran guardar los datos 
+    //       if(this.respuesta!=false){
+    //         this.$swal({
+    //         customClass: {
+    //             confirmButton: "entendido",
+    //         },
+    //         buttonsStyling: true,
+    //             title: "¡Inventario Guardado!",
+    //             icon: "success" ,
+    //             confirmButtonText: "Entendido",
+    //             confirmButtonColor: '#008000',
+    //             focusConfirm: false,
+    //           });
+    //       }
+    //       //sino se pueden guardar los datos 
+    //       else{
+    //         this.$swal({
+    //         customClass: {
+    //             confirmButton: "entendido",
+    //         },
+    //       buttonsStyling: true,
+    //           title: "¡No se pudo registrar el inventario!",
+    //           html:
+    //           'Contactese con Subdirección de Infraestructura Tecnológica y Servicios Informáticos extensión 1073 </em>',
+    //           icon: "error" ,
+    //           confirmButtonText: "Enterado",
+    //           confirmButtonColor: '#ff0000',
+    //           focusConfirm: false,
+    //         }
+    //       );
+    //       }
+
+
+    //     } 
+    //     //Si le dan en cancelar - proceso antes de guardar
+    //     else if (result.isDenied) {
+    //       this.$swal({
+    //         customClass: {
+    //             confirmButton: "entendido",
+    //         },
+    //     buttonsStyling: true,
+    //         title: "¡No se guardo ningún cambio!",
+    //         icon: "info" ,
+    //         confirmButtonText: "Entendido",
+    //         confirmButtonColor: '#ff0000',
+    //         focusConfirm: false,
+    //       }
+    //       );
+
+
+    //     }
+    //   });
+    // },
+
+
+    // saveDataOnBd() {
+    // // Validación y lógica anterior...
+
+    // this.$swal({
+    //     customClass: {
+    //         confirmButton: "entendido",
+    //         denyButton: "entendido"
+    //     },
+    //     buttonsStyling: true,
+    //     title: "¿Está seguro que desea guardar estos datos?",
+    //     html: '¡¡Una vez realizado este proceso no se puede revertir!! </em>',
+    //     //  showCancelButton: true,
+    //     focusConfirm: false,
+    //     showDenyButton: true,
+    //     confirmButtonText: "Guardar Inventario",
+    //     confirmButtonColor: '#008000',
+    //     denyButtonText: `Cancelar`,
+    // }).then((result) => {
+    //     /* Si confirman el guardado */
+    //     if (result.isConfirmed) {
+    //         // Hacer la petición a la API
+    //         fetch('http://10.0.230.142:3000/agregarProducto', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify(req.body)
+    //         })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw new Error('Error al enviar datos a la API');
+    //                 this.$swal({
+    //                 customClass: {
+    //                     confirmButton: "Enterado",
+    //                 },
+    //                 buttonsStyling: true,
+    //                 title: "¡Inventario Guardado!",
+    //                 icon: "error",
+    //                 confirmButtonText: "Entendido",
+    //                 confirmButtonColor: '#008000',
+    //                 focusConfirm: false,
+    //             });
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             console.log(data);
+    //             // Aquí puedes manejar la respuesta de la API, por ejemplo, mostrar un mensaje al usuario
+    //             this.$swal({
+    //                 customClass: {
+    //                     confirmButton: "entendido",
+    //                 },
+    //                 buttonsStyling: true,
+    //                 title: "¡Inventario Guardado!",
+    //                 icon: "success",
+    //                 confirmButtonText: "Entendido",
+    //                 confirmButtonColor: '#008000',
+    //                 focusConfirm: false,
+    //             });
+    //         })
+    //         .catch(error => {
+    //             console.error('Error al enviar datos a la API:', error.message);
+    //             // Manejar el error, mostrar un mensaje al usuario, etc.
+    //             this.$swal({
+    //                 customClass: {
+    //                     confirmButton: "entendido",
+    //                 },
+    //                 buttonsStyling: true,
+    //                 title: "¡No se pudo registrar el inventario!",
+    //                 html: 'Contactese con Subdirección de Infraestructura Tecnológica y Servicios Informáticos extensión 1073 </em>',
+    //                 icon: "error",
+    //                 confirmButtonText: "Enterado",
+    //                 confirmButtonColor: '#ff0000',
+    //                 focusConfirm: false,
+    //             });
+    //         });
+
+    //     } 
+    //     else if (result.isDenied) {
+    //         this.$swal({
+    //             customClass: {
+    //                 confirmButton: "entendido",
+    //             },
+    //             buttonsStyling: true,
+    //             title: "¡No se guardo ningún cambio!",
+    //             icon: "info",
+    //             confirmButtonText: "Entendido",
+    //             confirmButtonColor: '#ff0000',
+    //             focusConfirm: false,
+    //         });
+    //     }
+    // });
+    // },
+
+//     saveDataOnBd(){
+//  //console.log("Guardando datos en Base de Datos");
+
+//  this.$swal({
+//    customClass: {
+//        confirmButton: "entendido",
+//        denyButton: "entendido"
+//      },
+//     buttonsStyling: true,
+//     title: "¿Está seguro que desea guardar estos datos?",
+//     html:
+//         '¡¡Una vez realizado este proceso no se puede revertir!! </em>',
+//     //  showCancelButton: true,
+//     focusConfirm: false,
+//     showDenyButton: true,
+//     confirmButtonText: "Guardar Inventario",
+//     confirmButtonColor: '#008000',
+//     denyButtonText: `Cancelar`,
+//   }).then((result) => {
+//     /* Si confirman el guardado */
+//     if (result.isConfirmed) {
+
+//       // Hacer la petición HTTP para guardar los datos
+//       const requestOptions = {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ inventario })
+//       };
+//       fetch("https://jsonplaceholder.typicode.com/posts", requestOptions)
+//       //axios.post('http://10.0.230.142:3000/agregarProducto', this.inventario)
+//         .then(response => {
+//           console.log(response.data);
+//           // const { message, existeDuplicado } = response.data;
+//           // console.log(message);
+//           // if(existeDuplicado){
+//           //   this.$swal({
+//           //       customClass: {
+//           //           confirmButton: "Enterado",
+//           //       },
+//           //       buttonsStyling: true,
+//           //           title: "¡No se pudo guardar el inventario!",
+//           //           html: message,
+//           //           icon: "error" ,
+//           //           confirmButtonText: "Entendido",
+//           //           confirmButtonColor: '#008000',
+//           //           focusConfirm: false,
+//           //         });
+//           // }
+//           // // Si la petición se completó con éxito
+//           // else if (response.status === 200) {
+//           //   this.$swal({
+//           //     customClass: {
+//           //         confirmButton: "entendido",
+//           //     },
+//           //     buttonsStyling: true,
+//           //         title: "¡Inventario Guardado!",
+//           //         icon: "success" ,
+//           //         confirmButtonText: "Entendido",
+//           //         confirmButtonColor: '#008000',
+//           //         focusConfirm: false,
+//           //       });
+//           // } else {
+//           //   // Si hubo un error al guardar los datos
+//           //   this.$swal({
+//           //     customClass: {
+//           //         confirmButton: "entendido",
+//           //     },
+//           //   buttonsStyling: true,
+//           //       title: "¡No se pudo registrar el inventario!",
+//           //       html:
+//           //       'Contactese con Subdirección de Infraestructura Tecnológica y Servicios Informáticos extensión 1073 </em>',
+//           //       icon: "error" ,
+//           //       confirmButtonText: "Enterado",
+//           //       confirmButtonColor: '#ff0000',
+//           //       focusConfirm: false,
+//           //     }
+//           //   );
+//           // }
+
+//         })
+//         .catch(error => {
+//           console.error(error);
+//           // Manejar el error
+//         });
+
+//     } 
+//     //Si le dan en cancelar - proceso antes de guardar
+//     else if (result.isDenied) {
+//       this.$swal({
+//         customClass: {
+//             confirmButton: "entendido",
+//         },
+//     buttonsStyling: true,
+//         title: "¡No se guardo ningún cambio!",
+//         icon: "info" ,
+//         confirmButtonText: "Entendido",
+//         confirmButtonColor: '#ff0000',
+//         focusConfirm: false,
+//       }
+//       );
+
+
+//     }
+//   });
+// },
+    // saveDataOnBd(){
+    //   this.$swal({
+    //     customClass: {
+    //       confirmButton: "entendido",
+    //       denyButton: "entendido"
+    //     },
+    //     buttonsStyling: true,
+    //     title: "¿Está seguro que desea guardar estos datos?",
+    //     html: '¡¡Una vez realizado este proceso no se puede revertir!! </em>',
+    //     focusConfirm: false,
+    //     showDenyButton: true,
+    //     confirmButtonText: "Guardar Inventario",
+    //     confirmButtonColor: '#008000',
+    //     denyButtonText: `Cancelar`,
+    //   }).then((result) => {
+    //     if (result.isConfirmed) {
+    //       const requestOptions = {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify(this.inventario)
+    //       };
+
+    //       fetch("http://10.0.230.142:3000/agregarProducto", requestOptions)
+    //         .then(response => {
+            
+    //          console.log(response.message);
+    //           if (!response.ok) {
+    //             throw new Error("Error al guardar los datos");
+    //           }
+    //           else if(response.status===400){
+    //             this.$swal({
+    //             customClass: {
+    //               confirmButton: "Enterado",
+    //             },
+    //             buttonsStyling: true,
+    //             title: "¡Error con inventario!",
+    //             html:'',
+    //             icon: "error" ,
+    //             confirmButtonText: "Entendido",
+    //             confirmButtonColor: '#008000',
+    //             focusConfirm: false,
+    //           });
+    //           }
+    //           return response.json();
+    //         })
+    //         .then(data => {
+    //           this.$swal({
+    //             customClass: {
+    //               confirmButton: "entendido",
+    //             },
+    //             buttonsStyling: true,
+    //             title: "¡Inventario Guardado!",
+    //             icon: "success" ,
+    //             confirmButtonText: "Entendido",
+    //             confirmButtonColor: '#008000',
+    //             focusConfirm: false,
+    //           });
+    //         })
+    //         .catch(error => {
+    //           console.error(error);
+    //           this.$swal({
+    //             customClass: {
+    //               confirmButton: "Enterado",
+    //             },
+    //             buttonsStyling: true,
+    //             title: "¡No se pudo guardar el inventario!",
+    //             icon: "error" ,
+    //             confirmButtonText: "Entendido",
+    //             confirmButtonColor: '#008000',
+    //             focusConfirm: false,
+    //           });
+    //         });
+    //     } 
+    //     else if (result.isDenied) {
+    //       this.$swal({
+    //         customClass: {
+    //           confirmButton: "Entendido",
+    //         },
+    //         buttonsStyling: true,
+    //         title: "¡No se guardo ningún cambio!",
+    //         icon: "info" ,
+    //         confirmButtonText: "Entendido",
+    //         confirmButtonColor: '#ff0000',
+    //         focusConfirm: false,
+    //       });
+    //     }
+    //   });
+    // },
+//     saveDataOnBd() {
+//   this.$swal({
+//     customClass: {
+//       confirmButton: "entendido",
+//       denyButton: "entendido"
+//     },
+//     buttonsStyling: true,
+//     title: "¿Está seguro que desea guardar estos datos?",
+//     html: '¡¡Una vez realizado este proceso no se puede revertir!! </em>',
+//     focusConfirm: false,
+//     showDenyButton: true,
+//     confirmButtonText: "Guardar Inventario",
+//     confirmButtonColor: '#008000',
+//     denyButtonText: `Cancelar`,
+//   }).then((result) => {
+//     if (result.isConfirmed) {
+//       const requestOptions = {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(this.inventario)
+//       };
+
+//       fetch("http://10.0.230.142:3000/agregarProducto", requestOptions)
+//         .then(response => {
+//           console.log(response);
+//           if (!response.ok) {
+//             throw new Error("Error al guardar los datos");
+//           } 
+//           else if (response.status === 400) {
+//             return response.json().then(data => {
+//               this.$swal({
+//                 customClass: {
+//                   confirmButton: "Enterado",
+//                 },
+//                 buttonsStyling: true,
+//                 title: "¡Error con inventario!",
+//                 html: data.message,
+//                 icon: "error",
+//                 confirmButtonText: "Entendido",
+//                 confirmButtonColor: '#008000',
+//                 focusConfirm: false,
+//               });
+//             });
+//           } 
+//           else if (response.status === 200){
+//             this.$swal({
+//               customClass: {
+//                 confirmButton: "entendido",
+//               },
+//               buttonsStyling: true,
+//               title: "¡Inventario Guardado!",
+//               icon: "success",
+//               confirmButtonText: "Entendido",
+//               confirmButtonColor: '#008000',
+//               focusConfirm: false,
+//             });
+//           }
+//         })
+//         .catch(error => {
+//             console.error(error);
+//             this.$swal({
+//               customClass: {
+//                 confirmButton: "Enterado",
+//               },
+//               buttonsStyling: true,
+//               title: "¡No se pudo guardar el inventario** !",
+//               icon: "error",
+//               confirmButtonText: "Entendido",
+//               confirmButtonColor: '#008000',
+//               focusConfirm: false,
+//             });
+//         });
+//     } else if (result.isDenied) {
+//       this.$swal({
+//         customClass: {
+//           confirmButton: "Entendido",
+//         },
+//         buttonsStyling: true,
+//         title: "¡No se guardo ningún cambio!",
+//         icon: "info",
+//         confirmButtonText: "Entendido",
+//         confirmButtonColor: '#ff0000',
+//         focusConfirm: false,
+//       });
+//     }
+//   });
+// },
+
+
+    saveDataOnBd() {
+      this.$swal({
+        customClass: {
+          confirmButton: "entendido",
+          denyButton: "entendido"
+        },
+        buttonsStyling: true,
+        title: "¿Está seguro que desea guardar estos datos?",
+        html: '¡¡Una vez realizado este proceso no se puede revertir!! </em>',
+        focusConfirm: false,
+        showDenyButton: true,
+        confirmButtonText: "Guardar Inventario",
+        confirmButtonColor: '#008000',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(this.inventario)
+          };
+
+          fetch("http://10.0.230.142:3000/agregarProducto", requestOptions)
+            .then(response => {
+              console.log(response);
+             // console.log(response.data);
+              // if (!response.ok) {
+              //   throw new Error("Error al guardar los datos");
+              // } else 
+              if (response.status === 400) {
+                return response.json().then(data => {
+                  this.$swal({
+                    customClass: {
+                      confirmButton: "Enterado",
+                    },
+                    buttonsStyling: true,
+                    title: "¡Error con inventario--!",
+                    html: data.message,
+                    icon: "error",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: '#008000',
+                    focusConfirm: false,
+                  });
+                });
+              } else  if (response.status === 200) {
+                this.$swal({
+                  customClass: {
+                    confirmButton: "entendido",
+                  },
+                  buttonsStyling: true,
+                  title: "¡Inventario Guardado!",
+                  icon: "success",
+                  confirmButtonText: "Entendido",
+                  confirmButtonColor: '#008000',
+                  focusConfirm: false,
+                });
+
+                this.clenaData();
+              }
+            })
+            .catch(error => {
+              console.error(error);
+              this.$swal({
+                customClass: {
+                  confirmButton: "Enterado",
+                },
+                buttonsStyling: true,
+                title: "¡No se pudo guardar el inventario!",
+                icon: "error",
+                confirmButtonText: "Entendido",
+                confirmButtonColor: '#008000',
+                focusConfirm: false,
+              });
+            });
+        } 
+        else if (result.isDenied) {
+          this.$swal({
+            customClass: {
+              confirmButton: "Entendido",
+            },
+            buttonsStyling: true,
+            title: "¡No se guardo ningún cambio!",
+            icon: "info",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: '#ff0000',
+            focusConfirm: false,
+          });
+        }
+      });
+    },
+
+
     cargarDatosTabla() {
         if (this.activeItemsProductos.length > 0  && this.descripDatos != '') {
           // Hay elementos seleccionados en el autocomplete y también hay datos en el formulario
           
           // Utiliza los datos del formulario
           const nuevoItemFormulario = {
-            estado: 'Activo',
+
+            Estado: 1,
             Descripcion: this.descripDatos,
             Area: this.areaForm,
             AsignadoA: this.perasigForm,
@@ -738,30 +1480,53 @@ export default {
             ClaveProducto: this.noSerie,
             NumeroInventario: this.noInventario,
             NumeroInventarioArmonizado: this.noInvArmonizado,
-            FechaCompra: this.dateCompra,
-            FechaVencimientoGarantia: this.dateGarantia,
+            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
+            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+            IPEquipo: this.IPEquipo,
+            Licitacion: this.Licitacion,
+            Activo: true,
+            Tipo: this.Tipo,
+            FHCreado: new Date().toISOString(),
+            CreadoPor: '19',
+            FHModificado: new Date().toISOString(),
+            ModificadoPor: '19',
+
           };
           // Agrega los datos del formulario a la tabla
           this.inventario.push(nuevoItemFormulario);
+          console.log(this.inventario);
         } 
         else if (this.activeItemsProductos.length > 0) {
           // Hay elementos seleccionados en el autocomplete
          // console.log("Hay datos en el autocomplete");
 
           // Filtra los elementos seleccionados en el autocomplete que no están en la tabla
-          const nuevosItemsAutocomplete = this.equiposSeleccionados.filter(item => !this.inventario.some(existingItem => existingItem.Id === item.Id))
-                                                                  .map(item => ({ ...item, estado: "Activo" }));
+          const nuevosItemsAutocomplete = this.equiposSeleccionados.filter(item => 
+          !this.inventario.some(existingItem => existingItem.Id === item.Id))
+                                                                  .map(item => ({ 
+                                                                    ...item, Estado: 1,
+                                                                  Tipo: this.Tipo,
+                                                                  Activo: true,
+                                                                  FHCreado: new Date().toISOString(),
+            CreadoPor: '19',
+            FHModificado: new Date().toISOString(),
+            ModificadoPor: '19',
+            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
+            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+           
+                                                                }));
 
           // Agrega los elementos seleccionados en el autocomplete a la tabla
           this.inventario.push(...nuevosItemsAutocomplete);
         } 
         else if (this.descripDatos != '') {
           // Solo hay datos en el formulario
-          console.log("Hay datos en el formulario");
+          //console.log("Hay datos en el formulario");
 
           // Utiliza los datos del formulario
           const nuevoItemFormulario = {
-            estado: 'Activo',
+            
+            Estado: 1,
             Descripcion: this.descripDatos,
             Area: this.areaForm,
             AsignadoA: this.perasigForm,
@@ -774,8 +1539,17 @@ export default {
             ClaveProducto: this.noSerie,
             NumeroInventario: this.noInventario,
             NumeroInventarioArmonizado: this.noInvArmonizado,
-            FechaCompra: this.dateCompra,
-            FechaVencimientoGarantia: this.dateGarantia,
+            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
+            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+           
+            IPEquipo: this.IPEquipo,
+            Licitacion: this.Licitacion,
+            Activo: true,
+            Tipo: this.Tipo,
+            FHCreado: new Date().toISOString(),
+            CreadoPor: '19',
+            FHModificado: new Date().toISOString(),
+            ModificadoPor: '19',
           };
 
           // Agrega los datos del formulario a la tabla
@@ -798,6 +1572,8 @@ export default {
         this.noSerie = '';
         this.noInventario = '';
         this.noInvArmonizado = '';
+        this.IPEquipo=''; 
+        this.Tipo='';
 
         this.dialog = false; // Cierra el diálogo
     },
@@ -808,18 +1584,27 @@ export default {
     getMarcaText(value) {
        return this.activeItems.find(marca => marca.MarcaId === value)?.MarcaDescripcion || '';
     },
+
+    getAreaText(value) {
+     return this.activeItemsAreas.find(area => area.AreaId === value)?.AreaDescripcion || '';
+},
+
+    
+    
     formatDate(dateString) {
-      //console.log(dateString);
+      console.log(dateString);
       const date = new Date(dateString);
+
+      // Check for valid date and handle invalid formats
       if (!(date instanceof Date && !isNaN(date))) {
         return 'Fecha inválida';
       }
 
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
+      // Format the date in the user's preferred locale (adjust locale as needed)
+      return date.toLocaleDateString('es-MX'); // Use 'es-MX' for Mexican Spanish locale
     },
+
+
 
 
     // cargarDatosTabla() {
@@ -975,14 +1760,25 @@ export default {
     },
     editarItem(item) {
       // Clona el objeto para no modificarlo directamente
-      this.itemEditado = { ...item };
+      this.itemEditado = { ...item,
+        Estado: 1,
+        Tipo: this.Tipo,
+        Activo: true,
+            FHModificado: new Date().toISOString(),
+            ModificadoPor: '19',
+            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
+            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+           
+      };
 
       // Convierte las cadenas de fecha en objetos de fecha
-      this.itemEditado.FechaCompra = this.convertirAFecha(this.itemEditado.FechaCompra);
-      this.itemEditado.FechaVencimientoGarantia = this.convertirAFecha(this.itemEditado.FechaVencimientoGarantia);
-
+     // this.itemEditado.FechaCompra = this.convertirAFecha(this.itemEditado.FechaCompra);
+     // this.itemEditado.FechaVencimientoGarantia = this.convertirAFecha(this.itemEditado.FechaVencimientoGarantia);
+  
       // Abre el diálogo de edición
       this.dialogEditar = true;
+       // Agregar salida de consola para verificar
+       console.log('Item clonado:', this.itemEditado);
     },
     guardarEdicion() {
       const index = this.inventario.findIndex(i => i.Id === this.itemEditado.Id);
@@ -1021,6 +1817,8 @@ export default {
     // Cierra el menú
     this.menuCompra1 = false;
     },
+
+
     save2(dateGarantia) {
       const fechaConvertida2 = new Date(dateGarantia).toISOString().substr(0, 10);
       this.fechaGarantiaSeleccionada = fechaConvertida2;
@@ -1028,6 +1826,22 @@ export default {
       // Cierra el menú
       this.menuGarantia = false;
     },
+   save3(dateCambio) {
+    const fechaConvertida3 = new Date(dateCambio).toISOString().substr(0, 10);
+    this.itemEditado.FechaCompra = fechaConvertida3;
+    //console.log("Fecha seleccionada:", this.itemEditado.FechaCompra);
+
+    // Cierra el menú de fecha
+    this.menuForm = false;
+  },
+  save4(dateCambio) {
+    const fechaConvertida4 = new Date(dateCambio).toISOString().substr(0, 10);
+    this.itemEditado.FechaVencimientoGarantia = fechaConvertida4;
+    //console.log("Fecha seleccionada:", this.itemEditado.FechaCompra);
+
+    // Cierra el menú de fecha
+    this.menuForm2 = false;
+  },
 
 /*  
 onFileChange(e) {
@@ -1232,14 +2046,20 @@ onFileChange(e) {
     },
 */
 
-    cargarArchivo(e) {
-      console.log(event.target.files);
-      console.log(e.dataTransfer.files);
+    onFileChange(e) {
+  //    console.log(event.target.files);
+   //   console.log(e.dataTransfer.files);
 
       var files = e.target.files || e.dataTransfer.files;
       if (!files.length) return;
       this.createInput(files[0]); 
       this.archivoM = e.target.files[0];
+
+      console.log(this.archivoM);
+    //  var files = e.target.files || e.dataTransfer.files;
+     // if (!files.length) return;
+     // this.createInput(files[0]); 
+     // this.archivoM = e.target.files[0];
       // var files = event.target.files || e.dataTransfer.files;
       // console.log(JSON.stringify(event));
       // const file = event.target.files[1];
@@ -1263,9 +2083,142 @@ onFileChange(e) {
       //   });
       // };
       // reader.readAsText(file);
-    }
+    },
+
+    createInput(file) {      
+      let promise = new Promise((resolve, reject) => {
+        var reader = new FileReader();
+        var vm = this;
+        reader.onload = e => {
+          resolve((vm.fileinput = reader.result));
+        };
+        reader.readAsText(file);
+       // console.log(this.file.split('.').pop());
+      });
+      promise.then(
+        result => {
+          this.$swal({
+                 icon: 'load',
+                title: 'Cargando Archivo...',
+                timer: 3000,
+                timerProgressBar: true,
+                confirmButtonText: '...',
+                html:
+                  '</em>',
+                showCancelButton: false, // There won't be any cancel button
+                showConfirmButton: false, // There won't be any confirm button 
+                
+              },
+        ),
+
+          this.filename = file.name;
+          if(file.name.split('.').pop()=='csv' ||  file.name.split('.').pop()=='CSV'){
+            console.log("Archivo Valido")
+            // if (file.name.split('.').pop()=='csv' || file.name.split('.').pop()=='CSV') {
+            //   this.titulosArc = '';
+            //   this.cabeceras = [];
+            //   this.datos = [];
+            //   //Validación de Campo CVE_GEO
+            //   if (this.titulosArc = this.fileinput.slice(0,this.fileinput.indexOf('\n')).includes('CVE_GEO') == true) {
+            //    //Funciona y recupera los titulos de un CSV
+            //     this.titulosArc = this.fileinput.slice(0,this.fileinput.indexOf('\n'))
+            //     this.cabeceras = this.titulosArc.split(',').map(x=> { return {text:x, value:x , sortable: true,}})
+            //       let data;
+            //       try {
+            //           data = Papa.parse(this.fileinput, {
+            //             header: true,
+            //               dynamicTyping: true,
+            //               delimiter: ",",
+            //               linebreak: "\n",
+            //           });
+            //          // console.log(data.data);
+            //           this.datos = data.data
+            //       } catch (err) {
+            //           console.log(err);
+            //       }
+
+                  
+
+            //   } else {
+            //     this.$swal({
+            //         icon: 'error',
+            //         title: 'SIN CLAVE CVEGEO',
+            //         text: 'El archivo debe contener el Campo CVEGEO de lo contrario no se puede cargar la información ¡FAVOR DE CARGAR OTRO ARCHIVO!',
+            //         confirmButtonText: 'Entendido', 
+            //       });
+            //       this.file = '',
+            //     this.fileinput = ''
+            //     this.files = ''
+            //     const input = this.$refs.fileupload;
+            //     input.type = 'text';
+            //     input.type = 'file';
+            //   }
+
+
+            // } 
+            // else if (file.name.split('.').pop()=='geojson' || file.name.split('.').pop()=='GEOJSON'){
+            //   this.titulosArc = '';
+            //   this.cabeceras = [];
+            //   this.datos = [];
+            //   let prueba1 = JSON.parse(this.fileinput)
+            //   var v1;
+            //   for (var i = 0; i < 1; i++) {
+            //       v1 = JSON.stringify(prueba1.features[i].properties)
+            //       if (v1.includes('CVEGEO') == true) {
+            //         this.titulosArc = Object.keys(prueba1.features[i].properties).map(
+            //           function(key, index) {
+            //              return {text:key, value:key , sortable: true,}
+            //           },
+            //         );     
+            //         this.cabeceras = this.titulosArc
+            //        // console.log(this.cabeceras = this.titulosArc)      
+            //          //Lectura de Valores GEOJSON Y MUESTRA DE DATOS EN TABLA
+            //           for (var i = 0; i < prueba1.features.length; i++) {
+            //                  // console.log(prueba1.features[i].properties)
+            //                   this.datos.push(prueba1.features[i].properties)
+            //           }
+            //     } else {
+            //       this.$swal({
+            //         icon: 'error',
+            //         title: 'SIN CLAVE CVEGEO',
+            //         text: 'El archivo debe contener el Campo CVEGEO de lo contrario no se puede cargar la información ¡FAVOR DE CARGAR OTRO ARCHIVO!',
+            //         confirmButtonText: 'Entendido', 
+            //       });
+            //       this.file = '',
+            //     this.fileinput = ''
+            //     this.files = ''
+            //     const input = this.$refs.fileupload;
+            //     input.type = 'text';
+            //     input.type = 'file';
+            //     }
+            // }
+            // }
+          }else{
+           // alert("Por favor ingrese un archivo con extencion 'csv' o 'geojson'")
+            this.$swal({
+                    icon: 'error',
+                    title: 'ARCHIVO INCORRECTO',
+                    text: 'Por favor ingrese un archivo con extencion csv ',
+                    confirmButtonText: 'Entendido', 
+                  });
+                this.file = '',
+                this.fileinput = ''
+                this.files = ''
+                const input = this.$refs.fileupload;
+                input.type = 'text';
+                input.type = 'file';
+          }
+        },
+        error => {
+          console.log(error);
+        }
+      );
+    },
 
   },
+
+  
+
 
 
   // computed: {

@@ -3,8 +3,8 @@ import sql from 'mssql'
  const dbSettings = {
     user: 'orfis',
     password: 'zxcv',
-    server: 'localhost',
-    //server: '10.0.230.142',
+    //server: 'localhost',
+    server: '10.0.230.142',
     database: 'InventarioDGCIFS',
     options: {
         encrypt: true,
