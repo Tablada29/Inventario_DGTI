@@ -92,7 +92,6 @@ export const getProducts = (req, res) => {};
 //     console.log(result);
 //     res.json(result.recordset);
 // };
-
 export const getEquiposOrfis = async (req, res) => {
     const pool = await getConnection();
     const result = await pool.request().query(`
@@ -106,12 +105,13 @@ export const getEquiposOrfis = async (req, res) => {
         EQ.Modelo,
         EQ.Descripcion,
         EQ.NombreEquipo,
+        E.Activo,
         E.ClaveProducto,
         E.NumeroInventario,
         E.NumeroInventarioArmonizado,
         E.FechaCompra,
         E.FechaVencimientoGarantia,
-        A.AreaDescripcion AS Area, -- Cambio a AreaDescripcion
+        A.AreaId AS Area, -- Cambio a AreaDescripcion
         EA.IP AS IPEquipo,
         EA.NombrePersonal AS AsignadoA
     FROM
@@ -127,35 +127,26 @@ export const getEquiposOrfis = async (req, res) => {
     console.log(result);
     res.json(result.recordset);
 };
-
-
-
-
 //Nombres Equipos
 export const getEquipos = async (req, res) => {
     const pool = await getConnection();
-    const result = await pool.request().query("SELECT *  FROM [InventarioDGCIFS].[Catalogos].[ClasificacionEquipo]");
+    const result = await pool.request().query("SELECT *  FROM [InventarioDGCIFS].[Catalogos].[ClasificacionEquipo] ORDER BY ClasificacionEquipoDescripcion ASC");
     console.log(result);
-
     res.json(result.recordset);
-
 };
-
 //Marcas
 export const getMarcas = async (req, res) => {
 const pool = await getConnection();
-const result = await pool.request().query("SELECT * FROM [Catalogos].[Marca]");
+const result = await pool.request().query("SELECT * FROM [Catalogos].[Marca] ORDER BY MarcaDescripcion ASC");
 console.log(result);
 
 res.json(result.recordset);
 
 };
-
 //Areas
-
 export const getAreas = async (req, res) => {
     const pool = await getConnection();
-    const result = await pool.request().query("SELECT * FROM [Catalogos].[Area]");
+    const result = await pool.request().query("SELECT * FROM [Catalogos].[Area] where Activo=1 ORDER BY AreaDescripcion ASC");
     console.log(result);
     
     res.json(result.recordset);

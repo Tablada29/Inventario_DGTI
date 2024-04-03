@@ -1,25 +1,25 @@
-No.,Equipo,Marca,Modelo,Descripci¢n,Nombre Equipo,No. Serie,No. Inventario,No. Inv. Armonizado,µrea,Persona Asignada,Estado
-1,PC,Huawei,PCH,Pc de Escritorio,PC1,1011,5.15E+16,515000010006-00002,DGTI,Gisel Vazquez,Activo
-2,Laptop,Lenovo,LAPL,Laptot de Oficina,LAP1,789,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-3,Impresora,HP,HPI,Impresora blanca,IMP1,546,5.15E+16,515000010006-00000,DGTI,Gisel Vazquez,Activo
-4,Proyector,BENQ,BENQP, Proyector Negro,BENQ1,123,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-5,PC,Huawei,PCH,Pc de Escritorio,PC1,1011,5.15E+16,515000010006-00002,DGTI,Gisel Vazquez,Activo
-6,Laptop,Lenovo,LAPL,Laptot de Oficina,LAP1,789,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-7,Impresora,HP,HPI,Impresora blanca,IMP1,546,5.15E+16,515000010006-00000,DGTI,Gisel Vazquez,Activo
-8,Proyector,BENQ,BENQP, Proyector Negro,BENQ1,123,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,PC,Huawei,PCH,Pc de Escritorio,PC1,1011,5.15E+16,515000010006-00002,DGTI,Gisel Vazquez,Activo
-,Laptop,Lenovo,LAPL,Laptot de Oficina,LAP1,789,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,Impresora,HP,HPI,Impresora blanca,IMP1,546,5.15E+16,515000010006-00000,DGTI,Gisel Vazquez,Activo
-,Proyector,BENQ,BENQP, Proyector Negro,BENQ1,123,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,PC,Huawei,PCH,Pc de Escritorio,PC1,1011,5.15E+16,515000010006-00002,DGTI,Gisel Vazquez,Activo
-,Laptop,Lenovo,LAPL,Laptot de Oficina,LAP1,789,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,Impresora,HP,HPI,Impresora blanca,IMP1,546,5.15E+16,515000010006-00000,DGTI,Gisel Vazquez,Activo
-,Proyector,BENQ,BENQP, Proyector Negro,BENQ1,123,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,PC,Huawei,PCH,Pc de Escritorio,PC1,1011,5.15E+16,515000010006-00002,DGTI,Gisel Vazquez,Activo
-,Laptop,Lenovo,LAPL,Laptot de Oficina,LAP1,789,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,Impresora,HP,HPI,Impresora blanca,IMP1,546,5.15E+16,515000010006-00000,DGTI,Gisel Vazquez,Activo
-,Proyector,BENQ,BENQP, Proyector Negro,BENQ1,123,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,PC,Huawei,PCH,Pc de Escritorio,PC1,1011,5.15E+16,515000010006-00002,DGTI,Gisel Vazquez,Activo
-,Laptop,Lenovo,LAPL,Laptot de Oficina,LAP1,789,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
-,Impresora,HP,HPI,Impresora blanca,IMP1,546,5.15E+16,515000010006-00000,DGTI,Gisel Vazquez,Activo
-,Proyector,BENQ,BENQP, Proyector Negro,BENQ1,123,5.15E+16,515000010006-00001,DGTI,Gisel Vazquez,Activo
+No.,Equipo,Marca,Modelo,Descripcion,IPEquipo,NombreEquipo,ClaveProducto,NumeroInventario,NumeroInventarioArmonizado,Area,AsignadoA,estado,FechaCompra,FechaVencimientoGarantia
+1,PC,HP,PCH,Pc de Escritorio,10.0.230.232,PC1,1011,5.15E+16,515000010006-88888,Unidades Colegiadas,Gisel Vazquez,Activo,29/03/2023,30/03/2024
+2,Laptop,HP,LAPL,Laptot de Oficina,10.0.230.233,LAP1,789,5.15E+16,515000010006-88889,Unidades Colegiadas,Gisel Vazquez,Activo,30/03/2023,31/03/2024
+3,Impresora,HP,HPI,Impresora blanca,10.0.230.234,IMP1,546,5.15E+16,515000010006-88890,Unidades Colegiadas,Gisel Vazquez,Activo,31/03/2023,01/04/2024
+4,Proyector,HP,BENQP, Proyector Negro,10.0.230.235,BENQ1,123,5.15E+16,515000010006-88891,Unidades Colegiadas,Gisel Vazquez,Activo,01/04/2023,02/04/2024
+5,PC,HP,PCH,Pc de Escritorio,10.0.230.236,PC1,1011,5.15E+16,515000010006-88892,Unidades Colegiadas,Gisel Vazquez,Activo,02/04/2023,03/04/2024
+6,Laptop,HP,LAPL,Laptot de Oficina,10.0.230.237,LAP1,789,5.15E+16,515000010006-88893,Unidades Colegiadas,Gisel Vazquez,Activo,03/04/2023,04/04/2024
+7,Impresora,HP,HPI,Impresora blanca,10.0.230.238,IMP1,546,5.15E+16,515000010006-88894,Unidades Colegiadas,Gisel Vazquez,Activo,04/04/2023,05/04/2024
+8,Proyector,HP,BENQP, Proyector Negro,10.0.230.239,BENQ1,123,5.15E+16,515000010006-88895,Unidades Colegiadas,Gisel Vazquez,Activo,05/04/2023,06/04/2024
+,PC,HP,PCH,Pc de Escritorio,10.0.230.240,PC1,1011,5.15E+16,515000010006-88896,Unidades Colegiadas,Gisel Vazquez,Activo,06/04/2023,07/04/2024
+,Laptop,HP,LAPL,Laptot de Oficina,10.0.230.241,LAP1,789,5.15E+16,515000010006-88897,Unidades Colegiadas,Gisel Vazquez,Activo,07/04/2023,08/04/2024
+,Impresora,HP,HPI,Impresora blanca,10.0.230.242,IMP1,546,5.15E+16,515000010006-88898,Unidades Colegiadas,Gisel Vazquez,Activo,08/04/2023,09/04/2024
+,Proyector,HP,BENQP, Proyector Negro,10.0.230.243,BENQ1,123,5.15E+16,515000010006-88899,Unidades Colegiadas,Gisel Vazquez,Activo,09/04/2023,10/04/2024
+,PC,HP,PCH,Pc de Escritorio,10.0.230.244,PC1,1011,5.15E+16,515000010006-88900,Unidades Colegiadas,Gisel Vazquez,Activo,10/04/2023,11/04/2024
+,Laptop,HP,LAPL,Laptot de Oficina,10.0.230.245,LAP1,789,5.15E+16,515000010006-88901,Unidades Colegiadas,Gisel Vazquez,Activo,11/04/2023,12/04/2024
+,Impresora,HP,HPI,Impresora blanca,10.0.230.246,IMP1,546,5.15E+16,515000010006-88902,Unidades Colegiadas,Gisel Vazquez,Activo,12/04/2023,13/04/2024
+,Proyector,HP,BENQP, Proyector Negro,10.0.230.247,BENQ1,123,5.15E+16,515000010006-88903,Unidades Colegiadas,Gisel Vazquez,Activo,13/04/2023,14/04/2024
+,PC,HP,PCH,Pc de Escritorio,10.0.230.248,PC1,1011,5.15E+16,515000010006-88904,Unidades Colegiadas,Gisel Vazquez,Activo,14/04/2023,15/04/2024
+,Laptop,HP,LAPL,Laptot de Oficina,10.0.230.249,LAP1,789,5.15E+16,515000010006-88905,Unidades Colegiadas,Gisel Vazquez,Activo,15/04/2023,16/04/2024
+,Impresora,HP,HPI,Impresora blanca,10.0.230.250,IMP1,546,5.15E+16,515000010006-88906,Unidades Colegiadas,Gisel Vazquez,Activo,16/04/2023,17/04/2024
+,Proyector,HP,BENQP, Proyector Negro,10.0.230.251,BENQ1,123,5.15E+16,515000010006-88907,Unidades Colegiadas,Gisel Vazquez,Activo,17/04/2023,18/04/2024
+,PC,HP,PCH,Pc de Escritorio,10.0.230.252,PC1,1011,5.15E+16,515000010006-88908,Unidades Colegiadas,Gisel Vazquez,Activo,18/04/2023,19/04/2024
+,Laptop,HP,LAPL,Laptot de Oficina,10.0.230.253,LAP1,789,5.15E+16,515000010006-88909,Unidades Colegiadas,Gisel Vazquez,Activo,19/04/2023,20/04/2024
+,Impresora,HP,HPI,Impresora blanca,10.0.230.254,IMP1,546,5.15E+16,515000010006-88910,Unidades Colegiadas,Gisel Vazquez,Activo,20/04/2023,21/04/2024
+,Proyector,HP,BENQP, Proyector Negro,10.0.230.255,BENQ1,123,5.15E+16,515000010006-88911,Unidades Colegiadas,Gisel Vazquez,Activo,21/04/2023,22/04/2024

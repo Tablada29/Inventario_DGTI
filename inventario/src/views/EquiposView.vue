@@ -78,7 +78,7 @@
                                         <v-checkbox :input-value="isActive(item)" @input="toggleItem(item)"></v-checkbox>
                                       </v-list-item-action>
                                       <v-list-item-content>
-                                        <v-list-item-title>{{ item.Area }} -- {{  getEquipoText(item.Equipo) }} -- {{ getMarcaText(item.Marca) }} -- 
+                                        <v-list-item-title>{{ getAreaText(item.Area) }} -- {{  getEquipoText(item.Equipo) }} -- {{ getMarcaText(item.Marca) }} -- 
                                           {{ item.Modelo}} </v-list-item-title>
                                         <v-list-item-subtitle>{{ item.Descripcion }} -- {{ item.NumeroInventarioArmonizado }} -- IP: {{ item.IPEquipo }} </v-list-item-subtitle>
                                       </v-list-item-content>
@@ -304,13 +304,21 @@
                           <v-col xl="4" lg="4" md="4" sm="auto" xs="auto">
                             <v-text-field  label="No. Inventario" single-line
                             hint="Ingrese Número de Inventario"
-                            v-model="noInventario"></v-text-field>
+                            v-model="noInventario"
+                           >
+                          </v-text-field>
                           </v-col>
                            <!--No Inv Armoni-->
                           <v-col xl="4" lg="4" md="4" sm="auto" xs="auto">
                             <v-text-field label="No. Inv. Armonizado" v-model="noInvArmonizado"
                             hint="Ingrese Número de Inventario Armonizado"
-                            single-line ></v-text-field>
+                            :rules="rules"
+                            single-line 
+                            type="tel"
+                            maxlength="19"
+                            ></v-text-field>
+
+
                           </v-col>
                           <!--Estado-->
                           <v-col xl="4" lg="4" md="4" sm="auto" xs="auto">
@@ -340,7 +348,7 @@
               </v-card>
             </v-dialog>
           </v-col>
-          <!--Tabla de Datos-->
+          <!--*********************** Tabla de Datos *************************************-->
           <v-col cols="auto">
             <v-btn color="success" border class="text-none  mb-2" variant="text">
               <v-icon class="mr-3">mdi-microsoft-windows-classic</v-icon>
@@ -378,12 +386,16 @@
           <template v-slot:item.Area="{ item }">
             {{ getAreaText(item.Area) }}
           </template>
-          <!-- <template v-slot:item.FechaCompra="{ item }">
+
+          <template v-slot:item.Activo="{ item }">
+            {{ getActivoText(item.Activo) }}
+          </template>
+           <template v-slot:item.FechaCompra="{ item }">
             {{ formatDate(item.FechaCompra) }}
           </template>
           <template v-slot:item.FechaVencimientoGarantia="{ item }">
             {{ formatDate(item.FechaVencimientoGarantia) }}
-          </template> -->
+          </template> 
         </v-data-table>
       </v-col>
 
@@ -391,29 +403,45 @@
         <v-card>
           <v-card-title>Editar Equipo</v-card-title>
           <v-card-text>
-            <v-text-field :value="getEquipoText(itemEditado.Equipo)" label="Equipo" @input="updateEquipoText($event)">
-            </v-text-field>
-            <v-text-field :value="getMarcaText(itemEditado.Marca)" label="Marca" @input="updateMarcaText($event)">
-            </v-text-field>
+            <v-select class="" 
+            v-model="itemEditado.Equipo" :items="activeItemsEquipos" 
+            item-value="ClasificacionEquipoId" item-text="ClasificacionEquipoDescripcion" 
+            label="Equipo" 
+            required></v-select>
+<!-- 
+            <v-select class="" 
+                                v-model="selectedItemEquipos" :items="activeItemsEquipos" 
+                                item-value="ClasificacionEquipoId" item-text="ClasificacionEquipoDescripcion" 
+                                label="Equipo" 
+                                required></v-select> -->
+<!-- 
+                                <v-select class="mrl-15" v-model="selectedItemMarcas" :items="activeItems" 
+                            item-value="MarcaId" item-text="MarcaDescripcion" 
+                            label="Marcas" required>
+                          </v-select> -->
+
+                          <v-select class="mrl-15" v-model="itemEditado.Marca" :items="activeItems" 
+                          item-value="MarcaId" item-text="MarcaDescripcion" 
+                          label="Marcas" required>
+                        </v-select> 
+            <!-- <v-text-field :value="getMarcaText(itemEditado.Marca)" label="Marca" @input="updateMarcaText($event)">
+            </v-text-field> -->
             <v-text-field v-model="itemEditado.Modelo" label="Modelo"></v-text-field>
             <v-text-field v-model="itemEditado.Descripcion" label="Descripción"></v-text-field>
             <v-text-field v-model="itemEditado.NombreEquipo" label="Nombre Equipo"></v-text-field>
             <v-text-field v-model="itemEditado.IPEquipo" label="IP del Equipo"></v-text-field>
             <v-text-field v-model="itemEditado.ClaveProducto" label="No. Serie"></v-text-field>
             <v-text-field v-model="itemEditado.NumeroInventario" label="No. Inventario"></v-text-field>
-            <v-text-field v-model="itemEditado.NumeroInventarioArmonizado" label="No. Inventario Armonizado"></v-text-field>
-            
-            <!-- <v-text-field :value="getAreaText(itemEditado.Area)" label="Área" @input="updateAreaText($event)">
-            </v-text-field> -->
-            
-            <v-select class="mrl-15" v-model="itemEditado.Area" :items="activeItemsAreas" 
-            item-value="AreaId" item-text="AreaDescripcion" 
-            label="Areas" required>
-          </v-select>
-
-            <!-- <v-text-field v-model="itemEditado.Area" label="Área"></v-text-field> -->
+            <v-text-field v-model="itemEditado.NumeroInventarioArmonizado" label="No. Inventario Armonizado"></v-text-field>            
+            <v-select class="mrl-15" v-model="itemEditado.Area" 
+            :items="activeItemsAreas" item-value="AreaId" 
+            item-text="AreaDescripcion" label="Areas" required></v-select>
             <v-text-field v-model="itemEditado.AsignadoA" label="Asignado a"></v-text-field>
-            <v-select v-model="itemEditado.estado" :items="['Activo', 'Inactivo']" label="Estado"></v-select>
+            <v-select v-model="itemEditado.Activo" 
+            :items="activeItemsEstado"
+            item-value="valor" 
+            item-text="texto"
+            label="Estado"></v-select>
             <v-menu
               ref="menuForm"
               v-model="menuForm"
@@ -584,11 +612,23 @@
 import axios from 'axios';
 import moment from 'moment';
 import Swal from 'vue-sweetalert2';
-
+import { VueMaskDirective } from 'v-mask'
+import { pctEncChar } from 'uri-js';
+   const Papa = require('papaparse');
 export default {
   name: "CapEquipos",
 
   data: () => ({
+
+    //Reglas de campos
+    rules: [
+      value => !!value || 'Campo Requerido.',
+      value => (value && value.length >= 3) || 'Minimo 3 caracteres',
+      value => /^[0-9-]+$/.test(value) || 'Solo se permiten números y un único signo "-"',
+      value => /^[0-9]{3}00001000[0-9]{2}-[0-9]{5}$/.test(value) || 'Formato inválido',
+     
+      ],
+
 ///DATOS REALES ****************
 
 
@@ -606,7 +646,7 @@ export default {
             { text: 'No. Inv. Armonizado', value: 'NumeroInventarioArmonizado', sortable: true, width: '200px' },
             { text: 'Área', value: 'Area' , sortable: true,},
             { text: 'Persona Asignada', value: 'AsignadoA', sortable: true, },
-            { text: 'Estado', value: 'estado' , sortable: true,},
+            { text: 'Estado', value: 'Activo' , sortable: true,},
             { text: 'Fecha de Compra', value: 'FechaCompra' , sortable: true, width: '150px',align: 'center'},
             { text: 'Fecha de Garantía', value: 'FechaVencimientoGarantia' , sortable: true,width: '150px',align: 'center'},
             { text: 'Acciones', value: 'acciones', sortable: true,},
@@ -622,7 +662,7 @@ export default {
           itemEditado: {},
 
         // Dialogo de Ventana de Equipos 
-        dialog: true, 
+        dialog: false, 
 
 
       //Campos para carga de CSV
@@ -667,6 +707,18 @@ export default {
       //Valor Modelos 
       valModelo: '',
 
+      //valores de estado 
+      activeItemsEstado: [
+        {
+          valor: true,
+          texto: 'Activo'
+        },
+        {
+          valor: false,
+          texto: 'Inactivo'
+        }
+      ], 
+
       //Valores de la fecha
       menuCompra1: false,
       dateCompra: new Date(),
@@ -681,6 +733,9 @@ export default {
 //Valores de fielinput
 fileinput: "",
     filename: "",
+    titulosArc: '',
+    cabeceras: [],
+    datos: [],
 
       //DATOS DE PRUEBA *********************************************************************
 
@@ -812,6 +867,13 @@ fileinput: "",
     }
   },
   methods: {
+
+    //reglas de campos
+    validarFormatoNoInventario(value) {
+      const regex = /^[0-9]{3}00001[0-9]{4}-[0-9]{5}$/;
+      return regex.test(value) || 'Formato inválido';
+    },
+
     //Metodos Reales - ASYNC
     async fetchData() {
       try {
@@ -1471,8 +1533,8 @@ fileinput: "",
             Descripcion: this.descripDatos,
             Area: this.areaForm,
             AsignadoA: this.perasigForm,
-            fechaCompra: this.dateCompra,
-            fechaGarantia: this.dateGarantia,
+            //fechaCompra: this.dateCompra,
+            //fechaGarantia: this.dateGarantia,
             Equipo: this.selectedItemEquipos,
             Marca: this.selectedItemMarcas,
             Modelo: this.valModelo,
@@ -1480,8 +1542,8 @@ fileinput: "",
             ClaveProducto: this.noSerie,
             NumeroInventario: this.noInventario,
             NumeroInventarioArmonizado: this.noInvArmonizado,
-            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
-            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+            FechaCompra: this.dateCompra,
+            FechaVencimientoGarantia: this.dateGarantia,
             IPEquipo: this.IPEquipo,
             Licitacion: this.Licitacion,
             Activo: true,
@@ -1511,8 +1573,8 @@ fileinput: "",
             CreadoPor: '19',
             FHModificado: new Date().toISOString(),
             ModificadoPor: '19',
-            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
-            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+            FechaCompra:new Date().toISOString(),
+            FechaVencimientoGarantia: this.dateGarantia,
            
                                                                 }));
 
@@ -1539,9 +1601,10 @@ fileinput: "",
             ClaveProducto: this.noSerie,
             NumeroInventario: this.noInventario,
             NumeroInventarioArmonizado: this.noInvArmonizado,
-            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
-            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
-           
+            //FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
+            //FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+          //  FechaCompra: new Date().toISOString(),
+           // FechaVencimientoGarantia: this.dateGarantia,
             IPEquipo: this.IPEquipo,
             Licitacion: this.Licitacion,
             Activo: true,
@@ -1554,7 +1617,14 @@ fileinput: "",
 
           // Agrega los datos del formulario a la tabla
           this.inventario.push(nuevoItemFormulario);
+        }else if(this.titulosArc != '' && this.cabeceras.length > 0 && this.datos.length > 0){
+          //si se cargan datos mediante el uso de CSV
+          console.log('Cargando los datos...');
+          this.inventario = this.datos;
         }
+    //     titulosArc: '',
+    // cabeceras: [],
+    // datos: [],
 
         // Limpiar los campos del formulario
         this.descripDatos = '';
@@ -1587,9 +1657,11 @@ fileinput: "",
 
     getAreaText(value) {
      return this.activeItemsAreas.find(area => area.AreaId === value)?.AreaDescripcion || '';
-},
+    },
 
-    
+    getActivoText(value) {
+     return this.activeItemsEstado.find(estado => estado.valor === value)?.texto || '';
+    },
     
     formatDate(dateString) {
       console.log(dateString);
@@ -1761,13 +1833,13 @@ fileinput: "",
     editarItem(item) {
       // Clona el objeto para no modificarlo directamente
       this.itemEditado = { ...item,
-        Estado: 1,
+        estado: 1,
         Tipo: this.Tipo,
         Activo: true,
             FHModificado: new Date().toISOString(),
             ModificadoPor: '19',
-            FechaCompra: this.dateCompra ? new Date(this.dateCompra).toISOString() : null,
-            FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
+            FechaCompra: this.dateCompra,
+            FechaVencimientoGarantia: this.dateGarantia,
            
       };
 
@@ -2054,7 +2126,6 @@ onFileChange(e) {
       if (!files.length) return;
       this.createInput(files[0]); 
       this.archivoM = e.target.files[0];
-
       console.log(this.archivoM);
     //  var files = e.target.files || e.dataTransfer.files;
      // if (!files.length) return;
@@ -2100,7 +2171,7 @@ onFileChange(e) {
           this.$swal({
                  icon: 'load',
                 title: 'Cargando Archivo...',
-                timer: 3000,
+                timer: 1500,
                 timerProgressBar: true,
                 confirmButtonText: '...',
                 html:
@@ -2114,86 +2185,75 @@ onFileChange(e) {
           this.filename = file.name;
           if(file.name.split('.').pop()=='csv' ||  file.name.split('.').pop()=='CSV'){
             console.log("Archivo Valido")
-            // if (file.name.split('.').pop()=='csv' || file.name.split('.').pop()=='CSV') {
-            //   this.titulosArc = '';
-            //   this.cabeceras = [];
-            //   this.datos = [];
-            //   //Validación de Campo CVE_GEO
-            //   if (this.titulosArc = this.fileinput.slice(0,this.fileinput.indexOf('\n')).includes('CVE_GEO') == true) {
-            //    //Funciona y recupera los titulos de un CSV
-            //     this.titulosArc = this.fileinput.slice(0,this.fileinput.indexOf('\n'))
-            //     this.cabeceras = this.titulosArc.split(',').map(x=> { return {text:x, value:x , sortable: true,}})
-            //       let data;
-            //       try {
-            //           data = Papa.parse(this.fileinput, {
-            //             header: true,
-            //               dynamicTyping: true,
-            //               delimiter: ",",
-            //               linebreak: "\n",
-            //           });
-            //          // console.log(data.data);
-            //           this.datos = data.data
-            //       } catch (err) {
-            //           console.log(err);
-            //       }
+            if (file.name.split('.').pop()=='csv' || file.name.split('.').pop()=='CSV') {
+              this.titulosArc = '';
+              this.cabeceras = [];
+              this.datos = [];
 
-                  
-
-            //   } else {
-            //     this.$swal({
-            //         icon: 'error',
-            //         title: 'SIN CLAVE CVEGEO',
-            //         text: 'El archivo debe contener el Campo CVEGEO de lo contrario no se puede cargar la información ¡FAVOR DE CARGAR OTRO ARCHIVO!',
-            //         confirmButtonText: 'Entendido', 
-            //       });
-            //       this.file = '',
-            //     this.fileinput = ''
-            //     this.files = ''
-            //     const input = this.$refs.fileupload;
-            //     input.type = 'text';
-            //     input.type = 'file';
-            //   }
+                              
+                // Mapear datos de los servicios para facilitar la búsqueda
+                const areasMap = new Map(this.activeItemsAreas.map(area => [area.AreaDescripcion, area.AreaId]));
+                const marcasMap = new Map(this.activeItems.map(marca => [marca.MarcaDescripcion, marca.MarcaId]));
+                const equiposMap = new Map(this.activeItemsEquipos.map(equipo => [equipo.ClasificacionEquipoDescripcion, equipo.ClasificacionEquipoId]));
+                console.log();
+               //Funciona y recupera los titulos de un CSV
+                this.titulosArc = this.fileinput.slice(0,this.fileinput.indexOf('\n'))
+                this.cabeceras = this.titulosArc.split(',').map(x=> { return {text:x, value:x , sortable: true,}})
+                let data;
+                  try {
+                      data = 
+                      
+                      // Papa.parse(this.fileinput, {
+                      //   header: true,
+                      //     dynamicTyping: true,
+                      //     delimiter: ",",
+                      //     linebreak: "\n",
+                      // });
 
 
-            // } 
-            // else if (file.name.split('.').pop()=='geojson' || file.name.split('.').pop()=='GEOJSON'){
-            //   this.titulosArc = '';
-            //   this.cabeceras = [];
-            //   this.datos = [];
-            //   let prueba1 = JSON.parse(this.fileinput)
-            //   var v1;
-            //   for (var i = 0; i < 1; i++) {
-            //       v1 = JSON.stringify(prueba1.features[i].properties)
-            //       if (v1.includes('CVEGEO') == true) {
-            //         this.titulosArc = Object.keys(prueba1.features[i].properties).map(
-            //           function(key, index) {
-            //              return {text:key, value:key , sortable: true,}
-            //           },
-            //         );     
-            //         this.cabeceras = this.titulosArc
-            //        // console.log(this.cabeceras = this.titulosArc)      
-            //          //Lectura de Valores GEOJSON Y MUESTRA DE DATOS EN TABLA
-            //           for (var i = 0; i < prueba1.features.length; i++) {
-            //                  // console.log(prueba1.features[i].properties)
-            //                   this.datos.push(prueba1.features[i].properties)
-            //           }
-            //     } else {
-            //       this.$swal({
-            //         icon: 'error',
-            //         title: 'SIN CLAVE CVEGEO',
-            //         text: 'El archivo debe contener el Campo CVEGEO de lo contrario no se puede cargar la información ¡FAVOR DE CARGAR OTRO ARCHIVO!',
-            //         confirmButtonText: 'Entendido', 
-            //       });
-            //       this.file = '',
-            //     this.fileinput = ''
-            //     this.files = ''
-            //     const input = this.$refs.fileupload;
-            //     input.type = 'text';
-            //     input.type = 'file';
-            //     }
-            // }
-            // }
-          }else{
+
+                      // Procesar el archivo CSV
+                      Papa.parse(this.fileinput, {
+                          header: true,
+                          dynamicTyping: true,
+                          delimiter: ",",
+                          linebreak: "\n",
+                          complete: function(results) {
+                              // Sustituir valores de las columnas Marca, Equipo y Area
+                              results.data.forEach(row => {
+                                  // Sustituir valor de Marca
+                                  if (row.Marca && marcasMap.has(row.Marca)) {
+                                      row.Marca = marcasMap.get(row.Marca);
+                                  }
+
+                                  // Sustituir valor de Equipo
+                                  if (row.Equipo && equiposMap.has(row.Equipo)) {
+                                      row.Equipo = equiposMap.get(row.Equipo);
+                                  }
+
+                                  // Sustituir valor de Area
+                                  if (row.Area && areasMap.has(row.Area)) {
+                                      row.Area = areasMap.get(row.Area);
+                                  }
+                              });
+
+                              // Aquí puedes usar los datos procesados como necesites
+                             // console.log(results.data);
+                          },
+                          error: function(err) {
+                              console.log(err);
+                          }
+                      });
+
+                      console.log(data.data);
+                      this.datos = data.data
+                  } catch (err) {
+                      console.log(err);
+                  }
+            } 
+            
+          }
+          else{
            // alert("Por favor ingrese un archivo con extencion 'csv' o 'geojson'")
             this.$swal({
                     icon: 'error',
@@ -2216,37 +2276,5 @@ onFileChange(e) {
     },
 
   },
-
-  
-
-
-
-  // computed: {
-  //     computedDateFormatted () {
-  //       return this.formatDate(this.date)
-  //     }
-  //   },
-
-  // watch: {
-  //   date (val) {
-  //     this.dateFormatted = this.formatDate(this.date)
-  //   }
-  // },
-
-  // methods: {
-  //   formatDate (date) {
-  //     if (!date) return null
-
-  //     const [year, month, day] = date.split('-')
-  //     return `${month}/${day}/${year}`
-  //   },
-  //   parseDate (date) {
-  //     if (!date) return null
-
-  //     const [month, day, year] = date.split('/')
-  //     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-  //   }
-  // },
-
 };
 </script>
