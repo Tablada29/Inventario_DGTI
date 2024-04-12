@@ -124,30 +124,31 @@ export const getEquiposOrfis = async (req, res) => {
         CROSS JOIN CantidadEquipos;    
     
     `);
-    console.log(result);
+   // console.log(result);
     res.json(result.recordset);
 };
 //Nombres Equipos
 export const getEquipos = async (req, res) => {
     const pool = await getConnection();
     const result = await pool.request().query("SELECT *  FROM [InventarioDGCIFS].[Catalogos].[ClasificacionEquipo] ORDER BY ClasificacionEquipoDescripcion ASC");
-    console.log(result);
+    //console.log(result);
     res.json(result.recordset);
 };
 //Marcas
 export const getMarcas = async (req, res) => {
 const pool = await getConnection();
 const result = await pool.request().query("SELECT * FROM [Catalogos].[Marca] ORDER BY MarcaDescripcion ASC");
-console.log(result);
+//console.log(result);
 
 res.json(result.recordset);
 
 };
 //Areas
 export const getAreas = async (req, res) => {
+    
     const pool = await getConnection();
-    const result = await pool.request().query("SELECT * FROM [Catalogos].[Area] where Activo=1 ORDER BY AreaDescripcion ASC");
-    console.log(result);
+    const result = await pool.request().query("SELECT * FROM [Catalogos].[Area] where Activo=1 AND Clasificacion=1 ORDER BY AreaDescripcion ASC");
+   // console.log(result);
     
     res.json(result.recordset);
     
@@ -643,7 +644,7 @@ export const postProductos = async (req, res) => {
 
         //     res.status(200).json({ message: 'Datos insertados correctamente' });
         // }
-
+        //En caso de que el registro no exista, procedemos con la inserción
         else {
             let proximoProductoId;
 
@@ -674,6 +675,7 @@ export const postProductos = async (req, res) => {
 
             //console.log('Valor de '+proximoProductoId);
 
+            //Se declara 
             let query = `
                 
                             DECLARE @ProximoProductoId INT;
@@ -711,6 +713,8 @@ export const postProductos = async (req, res) => {
                     '${equipo.NumeroInventarioArmonizado}', '${equipo.ClaveProducto}', '${equipo.Estado}', '${equipo.FechaCompra}',
                     '${equipo.FechaVencimientoGarantia}', '${equipo.Licitacion}', '${equipo.Activo}', '${equipo.FHCreado}', '${equipo.CreadoPor}',
                     '${equipo.FHModificado}', '${equipo.ModificadoPor}')`;
+                    console.log("Individual");
+                    console.log(query);
             }
         
             // Insertar en la tabla Producto
@@ -729,17 +733,22 @@ export const postProductos = async (req, res) => {
                 });
 
             let equipoAsignacionQuery = '';
+            //si son muchos
             if (Array.isArray(req.body)) {
 
                 equipoAsignacionQuery = `
-                    
+                DECLARE @ProximoEquipoAsignacionId INT;
+                SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
+
+                DECLARE @ProximoProductoId INT;
+                            SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
         
                     INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
                     VALUES `;
                 
                 let contador2 = proximoEquipoId;
                 req.body.forEach((equipo, index) => {
-                    equipoAsignacionQuery += ` (${contador2}, NULL ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)`;
+                    equipoAsignacionQuery += ` (${contador2},  @ProximoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)`;
                     if (index !== req.body.length - 1) {
                         equipoAsignacionQuery += ', ';
                     }
@@ -748,14 +757,18 @@ export const postProductos = async (req, res) => {
                 });
                 console.log(equipoAsignacionQuery);
             } 
+            //Si solo es 1
             else {
                 const equipo = req.body;
                 equipoAsignacionQuery = `
                     DECLARE @ProximoEquipoAsignacionId INT;
                     SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
+
+                    DECLARE @ProximoProductoId INT;
+                                SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
         
                     INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
-                    VALUES (@ProximoEquipoAsignacionId, NULL ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)
+                    VALUES (@ProximoEquipoAsignacionId,  @ProximoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)
                 `;
             }
         

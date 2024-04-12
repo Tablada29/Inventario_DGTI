@@ -437,6 +437,7 @@
             :items="activeItemsAreas" item-value="AreaId" 
             item-text="AreaDescripcion" label="Areas" required></v-select>
             <v-text-field v-model="itemEditado.AsignadoA" label="Asignado a"></v-text-field>
+            <v-text-field v-model="itemEditado.Licitacion" label="licitación"></v-text-field>
             <v-select v-model="itemEditado.Activo" 
             :items="activeItemsEstado"
             item-value="valor" 
@@ -646,6 +647,7 @@ export default {
             { text: 'No. Inv. Armonizado', value: 'NumeroInventarioArmonizado', sortable: true, width: '200px' },
             { text: 'Área', value: 'Area' , sortable: true,},
             { text: 'Persona Asignada', value: 'AsignadoA', sortable: true, },
+            { text: 'Licitacion', value: 'Licitacion', sortable: true, },
             { text: 'Estado', value: 'Activo' , sortable: true,},
             { text: 'Fecha de Compra', value: 'FechaCompra' , sortable: true, width: '150px',align: 'center'},
             { text: 'Fecha de Garantía', value: 'FechaVencimientoGarantia' , sortable: true,width: '150px',align: 'center'},
@@ -813,7 +815,7 @@ fileinput: "",
   watch: {
     'itemEditado.estado': function(newEstado, oldEstado) {
     // Actualizar itemEditado.Estado según el estado seleccionado
-    this.itemEditado.Estado = newEstado === 'Activo' ? 1 : 0;
+    this.itemEditado.Estado = newEstado === 'Activo' ? 1 : 2;
     },
     isUpdating(val) {
       clearTimeout(this.timeout)
@@ -1445,7 +1447,9 @@ fileinput: "",
         confirmButtonColor: '#008000',
         denyButtonText: `Cancelar`,
       }).then((result) => {
+        //console.log(this.inventario);
         if (result.isConfirmed) {
+          console.log(JSON.stringify(this.inventario));
           const requestOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
