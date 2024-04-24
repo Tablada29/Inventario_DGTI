@@ -110,6 +110,7 @@ export const getEquiposOrfis = async (req, res) => {
         E.NumeroInventario,
         E.NumeroInventarioArmonizado,
         E.FechaCompra,
+        E.Licitacion,
         E.FechaVencimientoGarantia,
         A.AreaId AS Area, -- Cambio a AreaDescripcion
         EA.IP AS IPEquipo,
@@ -546,7 +547,249 @@ export const insertarDatos = async (req, res) => {
 // };
 
 
+
+
+//fucnionara pero no tiene rollback
+// export const postProductos = async (req, res) => {
+//     try {
+//         const pool = await getConnection();
+
+//         var existeNumeroInventarioArmonizadoQuery = '';
+//         var numInvArmCheck = '';
+//         if (Array.isArray(req.body)) {
+//             req.body.forEach((equipo) => {
+//                 console.log(equipo);
+//                 existeNumeroInventarioArmonizadoQuery = `
+//                     SELECT COUNT(*) AS Total FROM [Servicio].[Producto] WHERE NumeroInventarioArmonizado = '${equipo.NumeroInventarioArmonizado}';
+//                 `;
+//                 numInvArmCheck = equipo.NumeroInventarioArmonizado;
+//                 // Aquí puedes ejecutar la consulta SQL
+//             });
+//         }
+
+//         // Validar si existe el NumeroInventarioArmonizado
+//         const existeNumeroInventarioArmonizadoResult = await pool.request().query(existeNumeroInventarioArmonizadoQuery);
+//         const existeNumeroInventarioArmonizado = existeNumeroInventarioArmonizadoResult.recordset[0].Total > 0;
+//         //Si el registro existe
+//         if (existeNumeroInventarioArmonizado === true) {
+//             const numeroInventarioDuplicadoQuery = `
+//                 SELECT * FROM [Servicio].[Producto] WHERE NumeroInventarioArmonizado = '${numInvArmCheck}';
+//             `;
+//             const numeroInventarioDuplicadoResult = await pool.request().query(numeroInventarioDuplicadoQuery);
+//             const numeroInventarioDuplicado = numeroInventarioDuplicadoResult.recordset[0];
+
+//             return res.status(400).json({
+//                 message: `El Numero de Inventario Armonizado '${numInvArmCheck}' ya encuentra registrado con los siguientes datos '${JSON.stringify(numeroInventarioDuplicado)}', no se puede agregar el inventario hasta que se corrija ese dato.`,
+//                 existeDuplicado: true
+//             });
+//         } 
+
+//         //En caso de que el registro no exista, procedemos con la inserción
+//         else {
+//             let proximoProductoId;
+
+//                 // Obtener el próximo ProductoId
+//                 await pool.request().query(`
+
+//                 SELECT ProductoId = ISNULL(MAX(ProductoId), 0) + 1 FROM [Servicio].[Producto];
+
+//                 `).then(result => {
+//                     //console.log(result.recordset[0].ProductoId);
+//                     proximoProductoId = parseInt(result.recordset[0].ProductoId);
+//                 });
+//              //Inserción de Producto 
+//             let query = `
+                
+//                             DECLARE @ProximoProductoId INT;
+//                                 SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) + 1 FROM [Servicio].[Producto];
+
+//                     DECLARE @TipoProductoId INT;
+//                     SELECT @TipoProductoId = TipoProductoId FROM [Catalogos].[TipoProducto] WHERE TipoProductoDescripcion = 'Equipo';
+
+
+//                     INSERT INTO [Servicio].[Producto] (ProductoId, Tipo, Marca, NumeroInventario, NumeroInventarioArmonizado, ClaveProducto,
+//                         Estado, FechaCompra, FechaVencimientoGarantia, Licitacion, Activo, FHCreado, CreadoPor, FHModificado, ModificadoPor)
+//                     `;
+
+           
+//             if (Array.isArray(req.body)) {
+//                 query += 'VALUES ';
+//                 let contador = proximoProductoId;
+//                 req.body.forEach((equipo, index) => {
+//                     query += `(${contador}, @TipoProductoId, '${equipo.Marca}', '${equipo.NumeroInventario}',
+//                         '${equipo.NumeroInventarioArmonizado}', '${equipo.ClaveProducto}', '${equipo.Estado}', '${equipo.FechaCompra}',
+//                         '${equipo.FechaVencimientoGarantia}', '${equipo.Licitacion}', '${equipo.Activo}', '${equipo.FHCreado}', '${equipo.CreadoPor}',
+//                         '${equipo.FHModificado}', '${equipo.ModificadoPor}');`;
+
+//                     if (index !== req.body.length - 1) {
+//                         query += ', ';
+//                     }
+//                     contador = contador + 1;
+//                     console.log(query);
+//                     // Incrementar el contador
+//                 });
+
+//             } else {
+//                 const equipo = req.body;
+//                 query += `VALUES (@ProximoProductoId, @TipoProductoId, '${equipo.Marca}', '${equipo.NumeroInventario}',
+//                     '${equipo.NumeroInventarioArmonizado}', '${equipo.ClaveProducto}', '${equipo.Estado}', '${equipo.FechaCompra}',
+//                     '${equipo.FechaVencimientoGarantia}', '${equipo.Licitacion}', '${equipo.Activo}', '${equipo.FHCreado}', '${equipo.CreadoPor}',
+//                     '${equipo.FHModificado}', '${equipo.ModificadoPor}');`;
+//                     console.log("Individual");
+//                     console.log(query);
+//             }
+
+        
+            
+//             await pool.request().query(query);
+        
+// /******************************************************************* INSERCION  EQUIPO ******************************************************************/
+//             //Realiza inserción tambien a Servicio Producto
+//             let proximoEquipoIdProducto;
+//                 // Obtener el próximo EquipoId
+//                 await pool.request().query(`
+
+//                 SELECT EquipoId = ISNULL(MAX(ProductoId), 0) 
+//                 FROM [Servicio].[Producto];
+
+//                 `).then(result => {
+//                     proximoEquipoIdProducto = parseInt(result.recordset[0].EquipoId);
+//                 });
+
+//           //  console.log("valor de equipoId: "+proximoEquipoIdProducto);
+ 
+//             //Se declara la consulta a la base de datos 
+//                 let query2 = `
+//                 DECLARE @EquipoProductoId INT;
+//                      SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) 
+//                      FROM [Servicio].[Producto];
+            
+
+//                 INSERT INTO [Servicio].[Equipo] (EquipoId, Producto, 
+//                     Clasificacion, Modelo, Descripcion, SistemaOperativo, 
+//                     MSOffice, Observaciones, NombreEquipo, ContrasenaAdministrador)
+//                 `;
+//                 //si el array trae mas de un valor entonces hace un for para recorrer valores 
+//                 //console.log("Valor de Equipo "+req.body);
+//                 console.log("Valor contador "+proximoEquipoIdProducto);
+//                 if (Array.isArray(req.body)) {
+//                     query2 +='VALUES ';
+//                     //'${contador2}'
+//                     //@ProximoProductoId
+//                     let contador2 = proximoEquipoIdProducto;
+                    
+//                     req.body.forEach((equipo, index) => {
+//                         query2 += `('${contador2}', '${contador2}' ,'${equipo.Equipo}', 
+//                         '${equipo.Modelo}', '${equipo.Descripcion}'
+//                         ,NULL, NULL, NULL, NULL, NULL);`;
+//                         if (index !== req.body.length - 1) {
+//                             query2 += ', ';
+//                         }
+//                         contador2 = contador2 + 1;
+//                         console.log(query2);
+//                     });
+                    
+//                 } 
+//                 //Si solo es 1
+//                 else {
+//                     const query2 = req.body;
+//                     equipo = `
+   
+//                     DECLARE @EquipoProductoId INT;
+//                                 SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+            
+//                      INSERT INTO [Servicio].[Equipo] (EquipoId, Producto, Clasificacion, Modelo, Descripcion, SistemaOperativo, MSOffice, 
+//                                     Observaciones, NombreEquipo, ContrasenaAdministrador)
+//                                 VALUES  (@EquipoProductoId, @EquipoProductoId ,'${equipo.Equipo}', 1, '${equipo.Modelo}', '${equipo.Descripcion}',
+//                         NULL, NULL, NULL, NULL, 'OOOO')
+//                     `;
+//                     console.log(query2);
+//                 }
+            
+//                 // Insertar en la tabla Equipo
+//                 await pool.request().query(query2);
+            
+
+// /**************************************************** INSERCION EQUIPO ASIGNACION ******************************************************/
+//             //consulta de EquipoAsignación - pobtener el proximo producto 
+//             let proximoEquipoId;
+
+//                 // Obtener el próximo EquipoAsignacionId
+//                 await pool.request().query(`
+
+//                     SELECT EquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
+
+//                 `).then(result => {
+                    
+//                     proximoEquipoId = parseInt(result.recordset[0].EquipoAsignacionId);
+//                 });
+
+//                 console.log("valor de: "+proximoEquipoId);
+//                 //realiza inserción en EquipoAsignación 
+//             let equipoAsignacionQuery = '';
+//             //si son muchos
+//             console.log(req.body);
+//             if (Array.isArray(req.body)) {
+
+//                 equipoAsignacionQuery = `
+//                 DECLARE @ProximoEquipoAsignacionId INT;
+//                 SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
+
+//                 DECLARE @EquipoProductoId INT;
+//                 SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+        
+//                     INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
+//                     VALUES `;
+//                 //'${contador2}'
+//                 //@ProximoProductoId
+//                 let contador2 = proximoEquipoId;
+//                 req.body.forEach((equipo, index) => {
+//                     equipoAsignacionQuery += ` ('${contador2}',  @EquipoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)`;
+//                     if (index !== req.body.length - 1) {
+//                         equipoAsignacionQuery += ', ';
+//                     }
+//                     contador2 = contador2 + 1;
+                    
+//                 });
+//                 console.log(equipoAsignacionQuery);
+//             } 
+//             //Si solo es 1
+//             else {
+//                 const equipo = req.body;
+//                 equipoAsignacionQuery = `
+//                     DECLARE @ProximoEquipoAsignacionId INT;
+//                     SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
+
+//                     DECLARE @EquipoProductoId INT;
+//                     SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+        
+//                     INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
+//                     VALUES (@ProximoEquipoAsignacionId,   @EquipoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)
+//                 `;
+//                 console.log(equipoAsignacionQuery);
+//             }
+        
+//             // Insertar en la tabla EquipoAsignacion
+//             await pool.request().query(equipoAsignacionQuery);
+        
+
+
+
+
+//             res.status(200).json({ message: 'Datos insertados correctamente' });
+//         }
+        
+        
+//     } catch (error) {
+//         console.error('Error al insertar datos:', error.message);
+//         res.status(500).json({ message: 'Error al insertar datos' });
+//     }
+// };
+
+
+//contiene rollback
 export const postProductos = async (req, res) => {
+    let rollback = false; // Variable para controlar el rollback
     try {
         const pool = await getConnection();
 
@@ -566,7 +809,7 @@ export const postProductos = async (req, res) => {
         // Validar si existe el NumeroInventarioArmonizado
         const existeNumeroInventarioArmonizadoResult = await pool.request().query(existeNumeroInventarioArmonizadoQuery);
         const existeNumeroInventarioArmonizado = existeNumeroInventarioArmonizadoResult.recordset[0].Total > 0;
-
+        //Si el registro existe
         if (existeNumeroInventarioArmonizado === true) {
             const numeroInventarioDuplicadoQuery = `
                 SELECT * FROM [Servicio].[Producto] WHERE NumeroInventarioArmonizado = '${numInvArmCheck}';
@@ -579,117 +822,32 @@ export const postProductos = async (req, res) => {
                 existeDuplicado: true
             });
         } 
-        // else {
-        //     let query = `
-        //         DECLARE @ProximoProductoId INT;
-        //         SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) + 1 FROM [Servicio].[Producto];
 
-        //         DECLARE @TipoProductoId INT;
-        //         SELECT @TipoProductoId = TipoProductoId FROM [Catalogos].[TipoProducto] WHERE TipoProductoDescripcion = 'Equipo';
-
-        //         INSERT INTO [Servicio].[Producto] (ProductoId, Tipo, Marca, NumeroInventario, NumeroInventarioArmonizado, ClaveProducto,
-        //             Estado, FechaCompra, FechaVencimientoGarantia, Licitacion, Activo, FHCreado, CreadoPor, FHModificado, ModificadoPor)
-        //     `;
-        //     if (Array.isArray(req.body)) {
-        //         query += 'VALUES ';
-        //         req.body.forEach((equipo, index) => {
-        //             query += `(@ProximoProductoId, @TipoProductoId, '${equipo.Marca}', '${equipo.NumeroInventario}',
-        //                 '${equipo.NumeroInventarioArmonizado}', '${equipo.ClaveProducto}', '${equipo.Estado}', ${equipo.FechaCompra},
-        //                 ${equipo.FechaVencimientoGarantia}, '${equipo.Licitacion}', '${equipo.Activo}', '${equipo.FHCreado}', '${equipo.CreadoPor}',
-        //                 '${equipo.FHModificado}', '${equipo.ModificadoPor}')`;
-        //             if (index !== req.body.length - 1) {
-        //                 query += ', ';
-        //             }
-        //             console.log(query);
-        //         });
-        //     } else {
-        //         const equipo = req.body;
-        //         query += `VALUES (@ProximoProductoId, @TipoProductoId, '${equipo.Marca}', '${equipo.NumeroInventario}',
-        //             '${equipo.NumeroInventarioArmonizado}', '${equipo.ClaveProducto}', '${equipo.Estado}', '${equipo.FechaCompra}',
-        //             '${equipo.FechaVencimientoGarantia}', '${equipo.Licitacion}', '${equipo.Activo}', '${equipo.FHCreado}', '${equipo.CreadoPor}',
-        //             '${equipo.FHModificado}', '${equipo.ModificadoPor}')`;
-        //     }
-
-        //     // Insertar en la tabla Producto
-        //     await pool.request().query(query);
-
-        //     let equipoAsignacionQuery = '';
-        //     if (Array.isArray(req.body)) {
-        //         equipoAsignacionQuery = `
-        //             DECLARE @ProximoEquipoAsignacionId INT;
-        //             SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
-
-        //             INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
-        //             VALUES `;
-                    
-        //         req.body.forEach((equipo, index) => {
-        //             equipoAsignacionQuery += `(@ProximoEquipoAsignacionId, NULL ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)`;
-        //             if (index !== req.body.length - 1) {
-        //                 equipoAsignacionQuery += ', ';
-        //             }
-        //         });
-        //     } else {
-        //         const equipo = req.body;
-        //         equipoAsignacionQuery = `
-        //             DECLARE @ProximoEquipoAsignacionId INT;
-        //             SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
-
-        //             INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
-        //             VALUES (@ProximoEquipoAsignacionId, NULL ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)
-        //         `;
-        //     }
-
-        //     // Insertar en la tabla EquipoAsignacion
-        //     await pool.request().query(equipoAsignacionQuery);
-
-        //     res.status(200).json({ message: 'Datos insertados correctamente' });
-        // }
         //En caso de que el registro no exista, procedemos con la inserción
         else {
             let proximoProductoId;
 
-                // Obtener el próximo ProductoId
-                await pool.request().query(`
+            // Obtener el próximo ProductoId
+            await pool.request().query(`
 
                 SELECT ProductoId = ISNULL(MAX(ProductoId), 0) + 1 FROM [Servicio].[Producto];
 
-                `).then(result => {
-                    //console.log(result.recordset[0].ProductoId);
-                    proximoProductoId = parseInt(result.recordset[0].ProductoId);
-                });
-            // let query = `
-            //     DECLARE @ProximoProductoId INT;
-            //     SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) + 1 FROM [Servicio].[Producto];
-
-            //     OUTPUT INSERTED.ProductoId INTO @proximoProductoId;
-        
-            //     DECLARE @TipoProductoId INT;
-            //     SELECT @TipoProductoId = TipoProductoId FROM [Catalogos].[TipoProducto] WHERE TipoProductoDescripcion = 'Equipo';
-        
-            //     DECLARE @contador INT;
-            //     SET @contador = 1; -- Inicializar el contador
-        
-            //     INSERT INTO [Servicio].[Producto] (ProductoId, Tipo, Marca, NumeroInventario, NumeroInventarioArmonizado, ClaveProducto,
-            //         Estado, FechaCompra, FechaVencimientoGarantia, Licitacion, Activo, FHCreado, CreadoPor, FHModificado, ModificadoPor)
-            // `;
-
-            //console.log('Valor de '+proximoProductoId);
-
-            //Se declara 
+            `).then(result => {
+                //console.log(result.recordset[0].ProductoId);
+                proximoProductoId = parseInt(result.recordset[0].ProductoId);
+            });
+            //Inserción de Producto 
             let query = `
-                
-                            DECLARE @ProximoProductoId INT;
-                                SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) + 1 FROM [Servicio].[Producto];
+                DECLARE @ProximoProductoId INT;
+                SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) + 1 FROM [Servicio].[Producto];
 
-                    DECLARE @TipoProductoId INT;
-                    SELECT @TipoProductoId = TipoProductoId FROM [Catalogos].[TipoProducto] WHERE TipoProductoDescripcion = 'Equipo';
+                DECLARE @TipoProductoId INT;
+                SELECT @TipoProductoId = TipoProductoId FROM [Catalogos].[TipoProducto] WHERE TipoProductoDescripcion = 'Equipo';
 
+                INSERT INTO [Servicio].[Producto] (ProductoId, Tipo, Marca, NumeroInventario, NumeroInventarioArmonizado, ClaveProducto,
+                    Estado, FechaCompra, FechaVencimientoGarantia, Licitacion, Activo, FHCreado, CreadoPor, FHModificado, ModificadoPor)
+            `;
 
-                    INSERT INTO [Servicio].[Producto] (ProductoId, Tipo, Marca, NumeroInventario, NumeroInventarioArmonizado, ClaveProducto,
-                        Estado, FechaCompra, FechaVencimientoGarantia, Licitacion, Activo, FHCreado, CreadoPor, FHModificado, ModificadoPor)
-                    `;
-
-            
             if (Array.isArray(req.body)) {
                 query += 'VALUES ';
                 let contador = proximoProductoId;
@@ -697,7 +855,7 @@ export const postProductos = async (req, res) => {
                     query += `(${contador}, @TipoProductoId, '${equipo.Marca}', '${equipo.NumeroInventario}',
                         '${equipo.NumeroInventarioArmonizado}', '${equipo.ClaveProducto}', '${equipo.Estado}', '${equipo.FechaCompra}',
                         '${equipo.FechaVencimientoGarantia}', '${equipo.Licitacion}', '${equipo.Activo}', '${equipo.FHCreado}', '${equipo.CreadoPor}',
-                        '${equipo.FHModificado}', '${equipo.ModificadoPor}')`;
+                        '${equipo.FHModificado}', '${equipo.ModificadoPor}');`;
 
                     if (index !== req.body.length - 1) {
                         query += ', ';
@@ -712,43 +870,101 @@ export const postProductos = async (req, res) => {
                 query += `VALUES (@ProximoProductoId, @TipoProductoId, '${equipo.Marca}', '${equipo.NumeroInventario}',
                     '${equipo.NumeroInventarioArmonizado}', '${equipo.ClaveProducto}', '${equipo.Estado}', '${equipo.FechaCompra}',
                     '${equipo.FechaVencimientoGarantia}', '${equipo.Licitacion}', '${equipo.Activo}', '${equipo.FHCreado}', '${equipo.CreadoPor}',
-                    '${equipo.FHModificado}', '${equipo.ModificadoPor}')`;
+                    '${equipo.FHModificado}', '${equipo.ModificadoPor}');`;
                     console.log("Individual");
                     console.log(query);
             }
-        
-            // Insertar en la tabla Producto
+
             await pool.request().query(query);
-        
+            
+            // Inserción en la tabla Equipo
+            let proximoEquipoIdProducto;
+            // Obtener el próximo EquipoId
+            await pool.request().query(`
+
+                SELECT EquipoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+
+            `).then(result => {
+                proximoEquipoIdProducto = parseInt(result.recordset[0].EquipoId);
+            });
+
+            // Se declara la consulta a la base de datos 
+            let query2 = `
+                DECLARE @EquipoProductoId INT;
+                SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+
+                INSERT INTO [Servicio].[Equipo] (EquipoId, Producto, Clasificacion, Modelo, Descripcion, SistemaOperativo, MSOffice, 
+                                Observaciones, NombreEquipo, ContrasenaAdministrador)
+            `;
+            if (Array.isArray(req.body)) {
+                query2 +='VALUES ';
+                //'${contador2}'
+                //@ProximoProductoId
+                let contador2 = proximoEquipoIdProducto;
+                
+                req.body.forEach((equipo, index) => {
+                    query2 += `('${contador2}', '${contador2}' ,'${equipo.Equipo}', 
+                    '${equipo.Modelo}', '${equipo.Descripcion}'
+                    ,NULL, NULL, NULL, NULL, NULL);`;
+                    if (index !== req.body.length - 1) {
+                        query2 += ', ';
+                    }
+                    contador2 = contador2 + 1;
+                    console.log(query2);
+                });
+                
+            } 
+            // Si solo es 1
+            else {
+                const query2 = req.body;
+                equipo = `
+                    DECLARE @EquipoProductoId INT;
+                    SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+
+                    INSERT INTO [Servicio].[Equipo] (EquipoId, Producto, Clasificacion, Modelo, Descripcion, SistemaOperativo, MSOffice, 
+                                    Observaciones, NombreEquipo, ContrasenaAdministrador)
+                    VALUES  (@EquipoProductoId, @EquipoProductoId ,'${equipo.Equipo}', 1, '${equipo.Modelo}', '${equipo.Descripcion}',
+                    NULL, NULL, NULL, NULL, 'OOOO')
+                `;
+                console.log(query2);
+            }
+
+            await pool.request().query(query2);
+            
+            // Consulta de EquipoAsignación - obtener el próximo producto 
             let proximoEquipoId;
 
-                // Obtener el próximo ProductoId
-                await pool.request().query(`
+            // Obtener el próximo EquipoAsignacionId
+            await pool.request().query(`
 
-                    SELECT EquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
+                SELECT EquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
 
-                `).then(result => {
-                    //console.log(result.recordset[0].ProductoId);
-                    proximoEquipoId = parseInt(result.recordset[0].EquipoAsignacionId);
-                });
+            `).then(result => {
+                
+                proximoEquipoId = parseInt(result.recordset[0].EquipoAsignacionId);
+            });
 
+            console.log("valor de: "+proximoEquipoId);
+            // Realiza inserción en EquipoAsignación 
             let equipoAsignacionQuery = '';
-            //si son muchos
+            // si son muchos
+            console.log(req.body);
             if (Array.isArray(req.body)) {
 
                 equipoAsignacionQuery = `
-                DECLARE @ProximoEquipoAsignacionId INT;
-                SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
+                    DECLARE @ProximoEquipoAsignacionId INT;
+                    SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
 
-                DECLARE @ProximoProductoId INT;
-                            SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
-        
+                    DECLARE @EquipoProductoId INT;
+                    SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+            
                     INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
                     VALUES `;
-                
+                    //'${contador2}'
+                    //@ProximoProductoId
                 let contador2 = proximoEquipoId;
                 req.body.forEach((equipo, index) => {
-                    equipoAsignacionQuery += ` (${contador2},  @ProximoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)`;
+                    equipoAsignacionQuery += ` ('${contador2}',  @EquipoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)`;
                     if (index !== req.body.length - 1) {
                         equipoAsignacionQuery += ', ';
                     }
@@ -757,34 +973,83 @@ export const postProductos = async (req, res) => {
                 });
                 console.log(equipoAsignacionQuery);
             } 
-            //Si solo es 1
+            // Si solo es 1
             else {
                 const equipo = req.body;
                 equipoAsignacionQuery = `
                     DECLARE @ProximoEquipoAsignacionId INT;
                     SELECT @ProximoEquipoAsignacionId = ISNULL(MAX(EquipoAsignacionId), 0) + 1 FROM [Servicio].[EquipoAsignacion];
 
-                    DECLARE @ProximoProductoId INT;
-                                SELECT @ProximoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
+                    DECLARE @EquipoProductoId INT;
+                    SELECT  @EquipoProductoId = ISNULL(MAX(ProductoId), 0) FROM [Servicio].[Producto];
         
                     INSERT INTO [Servicio].[EquipoAsignacion] (EquipoAsignacionId, Equipo, Area, Permiso, NombrePersonal, IP, FechaAsignacionInicio, Activo)
-                    VALUES (@ProximoEquipoAsignacionId,  @ProximoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)
+                    VALUES (@ProximoEquipoAsignacionId,   @EquipoProductoId ,'${equipo.Area}', 1, '${equipo.AsignadoA}', '${equipo.IPEquipo}', GETDATE(), 1)
                 `;
+                console.log(equipoAsignacionQuery);
             }
         
             // Insertar en la tabla EquipoAsignacion
             await pool.request().query(equipoAsignacionQuery);
-        
-            res.status(200).json({ message: 'Datos insertados correctamente' });
+
         }
-        
         
     } catch (error) {
         console.error('Error al insertar datos:', error.message);
+        rollback = true; // Se activa el rollback si hay un error
         res.status(500).json({ message: 'Error al insertar datos' });
-    }
-};
+    } 
+    //tiene rollback solo que hay que configurarlo bien 
+    // finally {
+    //     if (rollback) {
+    //         // Si se debe realizar rollback, eliminar los registros insertados en todas las tablas
+    //         if (proximoProductoId) {
+    //             await pool.request().query(`
+    //                 DELETE FROM [Servicio].[Producto] WHERE ProductoId >= ${proximoProductoId};
+    //             `);
+    //         }
+    //         if (proximoEquipoIdProducto) {
+    //             await pool.request().query(`
+    //                 DELETE FROM [Servicio].[Equipo] WHERE EquipoId >= ${proximoEquipoIdProducto};
+    //             `);
+    //         }
+    //         if (proximoEquipoId) {
+    //             await pool.request().query(`
+    //                 DELETE FROM [Servicio].[EquipoAsignacion] WHERE EquipoAsignacionId >= ${proximoEquipoId};
+    //             `);
+    //         }
 
+    //         res.status(500).json({ message: 'Error al insertar datos, rollback realizado' });
+    //     }else {
+    //         res.status(200).json({ message: 'Datos insertados correctamente', reload: true  });
+    //     }
+    // }
+    //version 1 si funciona pero crashea
+    finally {
+        if (rollback) {
+            // Si se debe realizar rollback, eliminar el registro insertado en [Servicio].[Producto]
+            await pool.request().query(`
+                DELETE FROM [Servicio].[Producto] WHERE ProductoId >= ${proximoProductoId};
+            `);
+
+            // Eliminar el registro insertado en [Servicio].[Equipo] si procede
+            await pool.request().query(`
+                DELETE FROM [Servicio].[Equipo] WHERE EquipoId >= ${proximoEquipoIdProducto};
+            `);
+
+            // Eliminar el registro insertado en [Servicio].[EquipoAsignacion] si procede
+            await pool.request().query(`
+                DELETE FROM [Servicio].[EquipoAsignacion] WHERE EquipoAsignacionId >= ${proximoEquipoId};
+            `);
+
+            res.status(500).json({ message: 'Error al insertar datos, rollback realizado' });
+        } else {
+           res.status(200).json({ message: 'Datos insertados correctamente', reload: true  });
+       }
+    }
+
+
+};
 
 
 

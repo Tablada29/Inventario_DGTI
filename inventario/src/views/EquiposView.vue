@@ -420,19 +420,22 @@
                             label="Marcas" required>
                           </v-select> -->
 
-                          <v-select class="mrl-15" v-model="itemEditado.Marca" :items="activeItems" 
-                          item-value="MarcaId" item-text="MarcaDescripcion" 
-                          label="Marcas" required>
-                        </v-select> 
+          <v-select class="mrl-15" v-model="itemEditado.Marca" :items="activeItems" 
+          item-value="MarcaId" item-text="MarcaDescripcion" label="Marcas" required>
+          </v-select> 
             <!-- <v-text-field :value="getMarcaText(itemEditado.Marca)" label="Marca" @input="updateMarcaText($event)">
             </v-text-field> -->
-            <v-text-field v-model="itemEditado.Modelo" label="Modelo"></v-text-field>
+            <v-text-field v-model="itemEditado.Modelo" label="Modelo"
+            required></v-text-field>
             <v-text-field v-model="itemEditado.Descripcion" label="Descripción"></v-text-field>
             <v-text-field v-model="itemEditado.NombreEquipo" label="Nombre Equipo"></v-text-field>
             <v-text-field v-model="itemEditado.IPEquipo" label="IP del Equipo"></v-text-field>
             <v-text-field v-model="itemEditado.ClaveProducto" label="No. Serie"></v-text-field>
             <v-text-field v-model="itemEditado.NumeroInventario" label="No. Inventario"></v-text-field>
-            <v-text-field v-model="itemEditado.NumeroInventarioArmonizado" label="No. Inventario Armonizado"></v-text-field>            
+            <v-text-field v-model="itemEditado.NumeroInventarioArmonizado" 
+            label="No. Inventario Armonizado"
+            :rules="rules"
+            ></v-text-field>            
             <v-select class="mrl-15" v-model="itemEditado.Area" 
             :items="activeItemsAreas" item-value="AreaId" 
             item-text="AreaDescripcion" label="Areas" required></v-select>
@@ -443,6 +446,7 @@
             item-value="valor" 
             item-text="texto"
             label="Estado"></v-select>
+            <!--Fecha de Compra-->
             <v-menu
               ref="menuForm"
               v-model="menuForm"
@@ -463,16 +467,15 @@
                 ></v-text-field>
               </template>
               <v-date-picker
-                v-model="formattedFechaCompra"
+                v-model="itemEditado.FechaCompra"
                 locale="es"
-                ref="pickers"
+                
                 max="2150-01-01"
                 min="1950-01-01"
                 @change="save3"
               ></v-date-picker>
             </v-menu>
-
-
+            <!--Fecha de Garantía-->
             <v-menu
               ref="menuForm2"
               v-model="menuForm2"
@@ -493,9 +496,9 @@
                 ></v-text-field>
               </template>
               <v-date-picker
-                v-model="formattedFechaGarantia"
+                v-model="itemEditado.FechaVencimientoGarantia"
                 locale="es"
-                ref="pickers"
+                
                 max="2150-01-01"
                 min="1950-01-01"
                 @change="save4"
@@ -631,8 +634,7 @@ export default {
       ],
 
 ///DATOS REALES ****************
-
-
+ variablesVacias: [],
         //Valores de Tabla - Presentación 
         headers: [
         //    { text: 'No.', align: '', sortable: true, value: 'Id' },
@@ -723,7 +725,7 @@ export default {
 
       //Valores de la fecha
       menuCompra1: false,
-      dateCompra: new Date(),
+      dateCompra: new Date().toISOString().substr(0, 10),
       menuGarantia: false,
       dateGarantia: new Date().toISOString().substr(0, 10),
 
@@ -770,7 +772,7 @@ fileinput: "",
  
     //Valores de Fecha
 
-    dateCompra: new Date().toISOString().substring(0, 10),
+  //  dateCompra: new Date().toISOString().substring(0, 10),
     // dateFormatted: formatDate(new Date().toISOString().substring(0, 10)),
 
 
@@ -811,7 +813,18 @@ fileinput: "",
     
   
   }),
+  filters: {
+    formatDateCompra(value) {
+      // const date = new Date(value);
+      // return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 
+      const date = new Date(value);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+    }
+  },
   watch: {
     'itemEditado.estado': function(newEstado, oldEstado) {
     // Actualizar itemEditado.Estado según el estado seleccionado
@@ -845,7 +858,7 @@ fileinput: "",
       return new Date(this.itemEditado.FechaCompra).toISOString().substr(0, 10);
     },
     set(value) {
-      console.log(value);
+      console.log("valor compra:"+value);
       this.itemEditado.FechaCompra = value;
     },
     },
@@ -857,7 +870,8 @@ fileinput: "",
       return new Date(this.itemEditado.FechaVencimientoGarantia).toISOString().substr(0, 10);
     },
     set(value) {
-      console.log(value);
+      console.log("valor garantía "+value);
+      console.log("hopli");
       this.itemEditado.FechaVencimientoGarantia = value;
     },
     },
@@ -1453,7 +1467,10 @@ fileinput: "",
           const requestOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(this.inventario)
+            body: JSON.stringify(
+              //si necesitas editar información aquí puedes
+              this.inventario
+              )
           };
 
           fetch("http://10.0.230.142:3000/agregarProducto", requestOptions)
@@ -1479,6 +1496,8 @@ fileinput: "",
                   });
                 });
               } else  if (response.status === 200) {
+                
+                
                 this.$swal({
                   customClass: {
                     confirmButton: "entendido",
@@ -1492,6 +1511,8 @@ fileinput: "",
                 });
 
                 this.clenaData();
+                this.fetchData();
+               // window.location.reload();
               }
             })
             .catch(error => {
@@ -1546,8 +1567,27 @@ fileinput: "",
             ClaveProducto: this.noSerie,
             NumeroInventario: this.noInventario,
             NumeroInventarioArmonizado: this.noInvArmonizado,
-            FechaCompra: this.dateCompra,
-            FechaVencimientoGarantia: this.dateGarantia,
+           // FechaCompra: this.dateCompra,
+           // FechaVencimientoGarantia: this.dateGarantia,
+
+            
+            FechaCompra: (() => {
+          const date = new Date(this.dateCompra);
+          const month = date.getMonth() + 1;
+          const day = date.getDate();
+          const year = date.getFullYear();
+          return `${year}-${month}-${day}`;
+        })(),
+        FechaVencimientoGarantia: (() => {
+          const date = new Date(this.dateGarantia);
+          const month = date.getMonth() + 1;
+          const day = date.getDate();
+          const year = date.getFullYear();
+          return `${year}-${month}-${day}`;
+        })(),
+
+
+
             IPEquipo: this.IPEquipo,
             Licitacion: this.Licitacion,
             Activo: true,
@@ -1560,6 +1600,7 @@ fileinput: "",
           };
           // Agrega los datos del formulario a la tabla
           this.inventario.push(nuevoItemFormulario);
+          console.log('Cargando los datos 0...');
           console.log(this.inventario);
         } 
         else if (this.activeItemsProductos.length > 0) {
@@ -1577,13 +1618,26 @@ fileinput: "",
             CreadoPor: '19',
             FHModificado: new Date().toISOString(),
             ModificadoPor: '19',
-            FechaCompra:new Date().toISOString(),
-            FechaVencimientoGarantia: this.dateGarantia,
-           
-                                                                }));
+            FechaCompra: (() => {
+                  const date = new Date(item.FechaCompra);
+                  const month = date.getMonth() + 1;
+                  const day = date.getDate();
+                  const year = date.getFullYear();
+                  return `${year}-${month}-${day}`;
+                })(),
+            FechaVencimientoGarantia: (() => {
+              const date = new Date(item.FechaVencimientoGarantia);
+              const month = date.getMonth() + 1;
+              const day = date.getDate();
+              const year = date.getFullYear();
+              return `${year}-${month}-${day}`;
+            })(),
+           }));
 
           // Agrega los elementos seleccionados en el autocomplete a la tabla
           this.inventario.push(...nuevosItemsAutocomplete);
+          console.log('Cargando los datos 1...');
+          console.log(this.inventario);
         } 
         else if (this.descripDatos != '') {
           // Solo hay datos en el formulario
@@ -1609,6 +1663,20 @@ fileinput: "",
             //FechaVencimientoGarantia: this.dateGarantia ? new Date(this.dateGarantia).toISOString() : null,
           //  FechaCompra: new Date().toISOString(),
            // FechaVencimientoGarantia: this.dateGarantia,
+              FechaCompra: (() => {
+              const date = new Date(this.dateCompra);
+              const month = date.getMonth() + 1;
+              const day = date.getDate();
+              const year = date.getFullYear();
+              return `${year}-${month}-${day}`;
+            })(),
+            FechaVencimientoGarantia: (() => {
+              const date = new Date(this.dateGarantia);
+              const month = date.getMonth() + 1;
+              const day = date.getDate();
+              const year = date.getFullYear();
+              return `${year}-${month}-${day}`;
+            })(),
             IPEquipo: this.IPEquipo,
             Licitacion: this.Licitacion,
             Activo: true,
@@ -1621,10 +1689,15 @@ fileinput: "",
 
           // Agrega los datos del formulario a la tabla
           this.inventario.push(nuevoItemFormulario);
+
+          console.log('Cargando los datos 2...');
+          console.log(this.inventario);
         }else if(this.titulosArc != '' && this.cabeceras.length > 0 && this.datos.length > 0){
           //si se cargan datos mediante el uso de CSV
-          console.log('Cargando los datos...');
+          
           this.inventario = this.datos;
+          console.log('Cargando los datos 3...');
+          console.log(this.datos);
         }
     //     titulosArc: '',
     // cabeceras: [],
@@ -1648,8 +1721,42 @@ fileinput: "",
         this.noInvArmonizado = '';
         this.IPEquipo=''; 
         this.Tipo='';
-
+        this.datos;
         this.dialog = false; // Cierra el diálogo
+    },
+
+    editarItem(item) {
+      // Clona el objeto para no modificarlo directamente
+      this.itemEditado = { ...item,
+        estado: 1,
+        Tipo: this.Tipo,
+        // FechaCompra: (() => {
+        //   const date = new Date(item.FechaCompra);
+        //   const month = date.getMonth() + 1;
+        //   const day = date.getDate();
+        //   const year = date.getFullYear();
+        //   return `${month}/${day}/${year}`;
+        // })(),
+        // FechaVencimientoGarantia: (() => {
+        //   const date = new Date(item.FechaCompra);
+        //   const month = date.getMonth() + 1;
+        //   const day = date.getDate();
+        //   const year = date.getFullYear();
+        //   return `${month}/${day}/${year}`;
+        // })(),
+        Activo: true,
+            FHModificado: new Date().toISOString(),
+            ModificadoPor: '19'
+      };
+
+      // Convierte las cadenas de fecha en objetos de fecha
+     // this.itemEditado.FechaCompra = this.convertirAFecha(this.itemEditado.FechaCompra);
+     // this.itemEditado.FechaVencimientoGarantia = this.convertirAFecha(this.itemEditado.FechaVencimientoGarantia);
+  
+      // Abre el diálogo de edición
+      this.dialogEditar = true;
+       // Agregar salida de consola para verificar
+       console.log('Item clonado:', this.itemEditado);
     },
 
     getEquipoText(value) {
@@ -1675,150 +1782,10 @@ fileinput: "",
       if (!(date instanceof Date && !isNaN(date))) {
         return 'Fecha inválida';
       }
-
       // Format the date in the user's preferred locale (adjust locale as needed)
       return date.toLocaleDateString('es-MX'); // Use 'es-MX' for Mexican Spanish locale
     },
 
-
-
-
-    // cargarDatosTabla() {
-    //   if (this.activeItemsProductos.length > 0 && this.descripDatos !=''  &&
-    //     this.selectedItemEquipos !='' && this.selectedItemMarcas !='' && this.valModelo !='') {
-    //       console.log("Si hay datos en ambos");
-        
-    //       // Utiliza los datos del formulario
-    //       const nuevoItem = {
-    //         estado: 'Activo',
-    //         Descripcion: this.descripDatos,
-    //         Area: this.areaForm,
-    //         AsignadoA: this.perasigForm,
-    //         fechaCompra: this.dateCompra,
-    //         fechaGarantia: this.dateGarantia,
-    //         Equipo: this.selectedItemEquipos,
-    //         Marca: this.selectedItemMarcas,
-    //         Modelo: this.valModelo,
-    //         NombreEquipo: this.nomEquipo,
-    //         ClaveProducto: this.noSerie,
-    //         NumeroInventario: this.noInventario,
-    //         NumeroInventarioArmonizado: this.noInvArmonizado,
-    //         FechaCompra: this.dateCompra,
-    //         FechaVencimientoGarantia: this.dateGarantia,
-    //       };
-    //       this.inventario.push(nuevoItem);
-
-    //       // Limpiar los campos del formulario
-    //       this.descripDatos = '';
-    //       this.areaForm = '';
-    //       this.perasigForm = '';
-    //       this.licitaForm = '';
-    //       this.dateCompra = '';
-    //       this.dateGarantia = '';
-    //       this.selectedItemEquipos = '';
-    //       this.selectedItemMarcas = '';
-    //       this.valModelo = '';
-    //       this.dateCompra = '';
-    //       this.dateGarantia = '';
-        
-    //   }else{
-    //     console.log("Hay datos en uno solo");
-    //     if (this.activeItemsProductos.length > 0) {
-    //       // Utiliza los elementos seleccionados en el autocomplete
-    //       this.inventario = this.equiposSeleccionados.map(item => ({ ...item, estado: "Activo" }));
-    //     } else {
-    //       // Utiliza los datos del formulario
-    //       const nuevoItem = {
-    //         estado: 'Activo',
-    //         Descripcion: this.descripDatos,
-    //         Area: this.areaForm,
-    //         AsignadoA: this.perasigForm,
-    //         fechaCompra: this.dateCompra,
-    //         fechaGarantia: this.dateGarantia,
-    //         Equipo: this.selectedItemEquipos,
-    //         Marca: this.selectedItemMarcas,
-    //         Modelo: this.valModelo,
-    //         NombreEquipo: this.nomEquipo,
-    //         ClaveProducto: this.noSerie,
-    //         NumeroInventario: this.noInventario,
-    //         NumeroInventarioArmonizado: this.noInvArmonizado,
-    //         FechaCompra: this.dateCompra,
-    //         FechaVencimientoGarantia: this.dateGarantia,
-    //       };
-    //       this.inventario.push(nuevoItem);
-
-    //       // Limpiar los campos del formulario
-    //       this.descripDatos = '';
-    //       this.areaForm = '';
-    //       this.perasigForm = '';
-    //       this.licitaForm = '';
-    //       this.dateCompra = '';
-    //       this.dateGarantia = '';
-    //       this.selectedItemEquipos = '';
-    //       this.selectedItemMarcas = '';
-    //       this.valModelo = '';
-    //       this.dateCompra = '';
-    //       this.dateGarantia = '';
-    //       this.nomEquipo= '';
-    //      this.noSerie= '';
-    //       this.noInventario= '';
-    //       this.noInvArmonizado= '';
-    //     }
-    //   }
-
-    //   this.dialog = false; // Cierra el diálogo
-    // },
-
-
-    // cargarDatosTabla(){
-
-    //   // Verifica si hay elementos seleccionados en el autocomplete
-    // if (this.activeItemsProductos.length > 0) {
-    //   // Realiza alguna acción con los elementos seleccionados
-    //   //console.log('Elementos seleccionados:', this.activeItemsProductos);
-    //   //      this.inventario = this.equiposSeleccionados;
-    //   this.inventario = this.equiposSeleccionados.map(item => ({ ...item, estado: "Activo" }));
-    // } else {
-    //     // No hay elementos seleccionados, utiliza los datos del formulario
-    //    // console.log('Utilizando datos del formulario');
-    //     const nuevoItem = {
-    //       estado: 'Activo',
-    //       Descripcion: this.descripDatos,
-    //       Area: this.areaForm,
-    //       AsignadoA: this.perasigForm,
-    //       fechaCompra: this.dateCompra,
-    //       fechaGarantia: this.dateGarantia,
-    //       Equipo: this.selectedItemEquipos,
-    //       Marca: this.selectedItemMarcas,
-    //       Modelo: this.valModelo,
-    //       NombreEquipo: this.nomEquipo,
-    //       ClaveProducto: this.noSerie,
-    //       NumeroInventario: this.noInventario,
-    //       NumeroInventarioArmonizado: this.noInvArmonizado,
-    //       FechaCompra: this.dateCompra,
-    //       FechaVencimientoGarantia: this.dateGarantia,
-
-    //     };
-    //     this.inventario.push(nuevoItem);
-
-    //     // Limpiar los campos del formulario
-    //     this.descripDatos = '';
-    //     this.areaForm = '';
-    //     this.perasigForm = '';
-    //     this.licitaForm = '';
-    //     this.dateCompra = '';
-    //     this.dateGarantia = '';
-    //     this.selectedItemEquipos = '';
-    //     this.selectedItemMarcas = '';
-    //     this.valModelo = '';
-    //     this.dateCompra = '';
-    //     this.dateGarantia = '';
-
-    //   }
-    // this.dialog = false; // Cierra el diálogo
-    // },
-
-    //acciones para editar datos de tablas
     
     convertirAFecha(dateString) {
       // Si dateString ya es un objeto de fecha, devolverlo tal cual
@@ -1834,30 +1801,43 @@ fileinput: "",
         return null;
       }
     },
-    editarItem(item) {
-      // Clona el objeto para no modificarlo directamente
-      this.itemEditado = { ...item,
-        estado: 1,
-        Tipo: this.Tipo,
-        Activo: true,
-            FHModificado: new Date().toISOString(),
-            ModificadoPor: '19',
-            FechaCompra: this.dateCompra,
-            FechaVencimientoGarantia: this.dateGarantia,
-           
-      };
-
-      // Convierte las cadenas de fecha en objetos de fecha
-     // this.itemEditado.FechaCompra = this.convertirAFecha(this.itemEditado.FechaCompra);
-     // this.itemEditado.FechaVencimientoGarantia = this.convertirAFecha(this.itemEditado.FechaVencimientoGarantia);
-  
-      // Abre el diálogo de edición
-      this.dialogEditar = true;
-       // Agregar salida de consola para verificar
-       console.log('Item clonado:', this.itemEditado);
-    },
+    
     guardarEdicion() {
-      const index = this.inventario.findIndex(i => i.Id === this.itemEditado.Id);
+
+    const equipo = this.itemEditado.Equipo;
+    const marca = this.itemEditado.Marca;
+    const area = this.itemEditado.Area;
+   
+      this.verificaCampos();
+    
+    console.log("tiene area: "+area);
+    console.log("tiene marca: "+marca);
+    console.log("tiene equipo: "+equipo);
+
+    console.log("tiene variable: "+this.variablesVacias);
+    if (equipo === null || !marca== null || !area== null ||
+    equipo === '' || !marca=== 'null' || !area== ''
+    ) {
+        // Aquí puedes mostrar un mensaje de error o manejar la validación de alguna otra forma
+       // console.error('Falta completar algunos campos obligatorios');
+
+        this.$swal({
+                    customClass: {
+                      confirmButton: "Enterado",
+                    },
+
+                    buttonsStyling: true,
+                    title: "¡Error con Edición!",
+                    html: 'Los siguiente campos necesitan seleccionar un dato: </em>'+this.variablesVacias,
+                    icon: "error",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: '#008000',
+                    focusConfirm: false,
+                  });
+        return;
+    }
+
+    const index = this.inventario.findIndex(i => i.Id === this.itemEditado.Id);
       if (index !== -1) {
         // Aquí puedes actualizar el objeto en this.inventario
         this.inventario[index] = this.itemEditado;
@@ -1866,10 +1846,27 @@ fileinput: "",
       this.dialogEditar = false;
     },
 
+    verificaCampos(){
+      if (this.itemEditado.Equipo === null || this.itemEditado.Equipo === '') {
+        this.variablesVacias.push('equipo');
+    }
+
+    if (this.itemEditado.Marca === null || this.itemEditado.Marca === '') {
+      this.variablesVacias.push('marca');
+    }
+
+    if (this.itemEditado.Area === null || this.itemEditado.Area === '') {
+      console.log("falta areaaaaa")
+      this.variablesVacias.push('area');
+    }
+    },
+
     eliminarItem(item) {
       const index = this.inventario.findIndex(i => i.Id === item.Id);
       if (index !== -1) {
         this.inventario.splice(index, 1); // Elimina el elemento del array
+       // this.activeItemsProductos.splice(index, 1);
+        this.equiposSeleccionados.splice(index, 1);
         this.activeItemsProductos = this.activeItemsProductos.filter(activeItem => activeItem.Id !== item.Id);
          
       }
@@ -1902,22 +1899,23 @@ fileinput: "",
       // Cierra el menú
       this.menuGarantia = false;
     },
-   save3(dateCambio) {
-    const fechaConvertida3 = new Date(dateCambio).toISOString().substr(0, 10);
+   save3(dateCambio1) {
+    //const fechaConvertida3 = new Date(dateCambio1).toISOString().substr(0, 10);
+    const fechaConvertida3 = dateCambio1;
     this.itemEditado.FechaCompra = fechaConvertida3;
-    //console.log("Fecha seleccionada:", this.itemEditado.FechaCompra);
+    console.log("Fecha seleccionada:", this.itemEditado.FechaCompra);
 
     // Cierra el menú de fecha
     this.menuForm = false;
-  },
-  save4(dateCambio) {
-    const fechaConvertida4 = new Date(dateCambio).toISOString().substr(0, 10);
-    this.itemEditado.FechaVencimientoGarantia = fechaConvertida4;
-    //console.log("Fecha seleccionada:", this.itemEditado.FechaCompra);
+    },
+    save4(dateCambio) {
+      const fechaConvertida4 = new Date(dateCambio).toISOString().substr(0, 10);
+      this.itemEditado.FechaVencimientoGarantia = fechaConvertida4;
+      //console.log("Fecha seleccionada:", this.itemEditado.FechaCompra);
 
-    // Cierra el menú de fecha
-    this.menuForm2 = false;
-  },
+      // Cierra el menú de fecha
+      this.menuForm2 = false;
+    },
 
 /*  
 onFileChange(e) {
