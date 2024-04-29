@@ -634,7 +634,8 @@ export default {
       ],
 
 ///DATOS REALES ****************
- variablesVacias: [],
+
+
         //Valores de Tabla - Presentación 
         headers: [
         //    { text: 'No.', align: '', sortable: true, value: 'Id' },
@@ -1804,38 +1805,49 @@ fileinput: "",
     
     guardarEdicion() {
 
-    const equipo = this.itemEditado.Equipo;
-    const marca = this.itemEditado.Marca;
-    const area = this.itemEditado.Area;
-   
-      this.verificaCampos();
-    
-    console.log("tiene area: "+area);
-    console.log("tiene marca: "+marca);
-    console.log("tiene equipo: "+equipo);
+    //   const equipo = this.itemEditado.Equipo;
+    // const marca = this.itemEditado.Marca;
+    // const area = this.itemEditado.Area;
+    // const variablesVacias = [];
 
-    console.log("tiene variable: "+this.variablesVacias);
-    if (equipo === null || !marca== null || !area== null ||
-    equipo === '' || !marca=== 'null' || !area== ''
-    ) {
-        // Aquí puedes mostrar un mensaje de error o manejar la validación de alguna otra forma
-       // console.error('Falta completar algunos campos obligatorios');
+    // if (equipo === null || equipo === '' && marca === null || marca === '' && ) {
+    //     variablesVacias.push('equipo');
+    // }
 
-        this.$swal({
-                    customClass: {
-                      confirmButton: "Enterado",
-                    },
+    // if (marca === null || marca === '') {
+    //     variablesVacias.push('marca');
+    // }
 
-                    buttonsStyling: true,
-                    title: "¡Error con Edición!",
-                    html: 'Los siguiente campos necesitan seleccionar un dato: </em>'+this.variablesVacias,
-                    icon: "error",
-                    confirmButtonText: "Entendido",
-                    confirmButtonColor: '#008000',
-                    focusConfirm: false,
-                  });
-        return;
-    }
+    // if (area === null || area === '') {
+    //     variablesVacias.push('area');
+    // }
+
+    // console.log("tiene area: "+area);
+    // console.log("tiene marca: "+marca);
+    // console.log("tiene equipo: "+equipo);
+
+    // console.log("tiene variable: "+variablesVacias);
+    // if (equipo === null || !marca== null || !area== null ||
+    // equipo === '' || !marca=== 'null' || !area== ''
+    // ) {
+    //     // Aquí puedes mostrar un mensaje de error o manejar la validación de alguna otra forma
+    //    // console.error('Falta completar algunos campos obligatorios');
+
+    //     this.$swal({
+    //                 customClass: {
+    //                   confirmButton: "Enterado",
+    //                 },
+
+    //                 buttonsStyling: true,
+    //                 title: "¡Error con Edición!",
+    //                 html: 'Los siguiente campos necesitan seleccionar un dato: </em>'+variablesVacias,
+    //                 icon: "error",
+    //                 confirmButtonText: "Entendido",
+    //                 confirmButtonColor: '#008000',
+    //                 focusConfirm: false,
+    //               });
+    //     return;
+    // }
 
     const index = this.inventario.findIndex(i => i.Id === this.itemEditado.Id);
       if (index !== -1) {
@@ -1844,21 +1856,6 @@ fileinput: "",
         this.$set(this.inventario, index, this.itemEditado); 
       }
       this.dialogEditar = false;
-    },
-
-    verificaCampos(){
-      if (this.itemEditado.Equipo === null || this.itemEditado.Equipo === '') {
-        this.variablesVacias.push('equipo');
-    }
-
-    if (this.itemEditado.Marca === null || this.itemEditado.Marca === '') {
-      this.variablesVacias.push('marca');
-    }
-
-    if (this.itemEditado.Area === null || this.itemEditado.Area === '') {
-      console.log("falta areaaaaa")
-      this.variablesVacias.push('area');
-    }
     },
 
     eliminarItem(item) {
